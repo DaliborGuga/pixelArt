@@ -1,18 +1,18 @@
-# Test Patterns
+# PixelArt led matrix display based on HUB75 and ESP32
 
-Simple solid colors, gradients and test line patterns, could be used to test matrices for proper operation, flickering and estimate fillrate timings.
+# A led matrix display for drawing like a pixelized Paintbrush
+# hosted in a local Webserver or -Bluetooth- joystick controlled with an ESP32 microcontroller
+# With tons of code gathered from here and there
+# Features:
+#  Local webserver with a paintbrush-like canvas editor
+#  3 canvas sizes: 16x16 - 32x32 - 64x64
+#  Fantastic tools: choose color, clear canvas, draw pixel, save/load image(to uSD), etc.
+#  Local Converter: thake a photo or download and image and scale and upload it to digital frame
 
-It is also used in CI test builds to check different build flags scenarios.
+#  Bluetooth joystick control: android .apk application downloadable from webserver
+#  to Install apk: nearby devices permission (bluetooth) and not signed apks (developer)
+#  Android app developed with MIT app inventor - https://appinventor.mit.edu/
+#  Basically a serial-over-bluetooth for sending simple commands to the ESP: move cursor
+#  select and deposit color on cursor position, save image to uSD
 
-Should be build and uploaded as a [platformio](https://platformio.org/) project
-
-
-To build with Arduino's framework use
-```
-pio run -t upload
-```
-
-To build using ESP32 IDF with arduino's component use
-```
-pio run -t upload -e idfarduino
-```
+#  TO DO: many things
