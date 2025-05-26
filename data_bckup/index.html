@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="dark">
+        <link rel="icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAA/6uPAA7S/wD/PoUACd7/ADn/BAD/VAsA/ypKAIv/2ACstf8A/xN6ANL/qgAX/9IA/1QvAP8xygDJ/84ALcz/AP+NSQCY/4gAFv+UAP9QUADJrP8A/2iOAHT/JwAe8P8AW/8EAMj/NwD/vO8AVf+KACM+/wD/0RkArPT/AP9xUABYuv8A/9t1AP+izwD/qWcAcqL/AP/HrgAXbv8APPb/AP83EAD/WqQA/3AqAMzu/wBd/8kAdL3/ABmJ/wD/R+kA1Dn/ACv/9wD/DCkA/6+4AP+hEgCr/0IAQ1//ALr/iQAwif8ABhD/AA7F/wB+I/8ALKH/ACj/ewD/Mi8A/0ptADf/YAD/jW8AK/8iAP+8LQD/xYYA/xjcAIT5/wCN7f8A/+PNAJ7/wAD0V/8AD/v/AM3/DQBqdP8A/0i4AID/aAD/6jAA/xqtAP+mPQD/6foA/yv6AP/0jAC0Gv8Aref/ACgx/wCf//8A//7oALrY/wDY/4EAnUT/AEjF/wD/FRAA/4ogAMvV/wCj/2gARSj/AE7g/wAu/7sA/9ZGABj/NgCCnv8AZsv/AOkO/wDqzP8AcP+xABCd/wA5Z/8Abdr/AElS/wD/8F4A4/8pAG3m/wBl8v8AlP8iAP92xQD/b3IA6PP/AP/BWQCF0f8A3v9WAB6v/wAM/1IAZkn/AHP/8ABp/0cA//8XAP8umgCgvP8ARYj/ALH/GQCO4P8A6f/KACi+/wCA/5cAIwb/AFaF/wCg1/8A/5CWAEaj/wDdg/8APbX/AGN//wDm//cAi/9HAC7Z/wD/36EADU7/ACjl/wBh/2wAGkj/AF6j/wCHav8A+f9FAE7T/wD0/3IARP/hAEfr/wD+of8AQf9BAIqU/wDv/58ARP+jAFH/JgAqbP8A/3P0AMz7/wD/ztsA/yFkAMH/YgD/juIAV/3/AL5k/wD/YNcAuP/oAAq3/wCni/8A//m6AK//qgD/hrAAjL7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABilgMwAAAAAAAAAAAAA1YSsNPwesCgAAAAAAAAAeRFMRIBRAA4NSAAAAAACCUWd6JEJ4FipPDkYAAABNc51yIkUBjrd3sTBVawAAhhp8n1aWJjQjrqlLMVcAAHY2rV2ltUmrG6KQsF48ABkXlGM4C4hbVGwVtJx/ZIsFp4FQErYPk3liCaROcVk6AEOjmYpKsqosXIRpkjcdAABoQRxtCFofWI24JYxvmgAAfj6mLYBHSId7LpuFqJcAAAATZqCvdXRwaiGPOScAAAAAAAwyKKFlnl+RPS8AAAAAAAAATBiYlRCJfW4AAAAAAAAAAAAABAI7swAAAAAAAPw/AADwDwAA4AcAAMADAACAAQAAgAEAAIABAAAAAAAAAAAAAIABAACAAQAAgAEAAMADAADgBwAA8A8AAPw/AAA=">
+        <!-- <link rel="icon" src="favicon.ico"/> -->
+        <title>Lylart-Matrix</title>
+
+        <!-- <link rel="stylesheet" href="fontawesome-all.css"> -->
+        <!-- <link rel="stylesheet" href="bootstrap.min.css"> -->
+
+    <script>
+        var tools = [0,0,0,0]                     //pen, eraser, fill,pick color from canvas
+        var canvasMouseX = 0;                   //position of the mouse on the canvas element
+        var canvasMouseY = 0;
+        var isDrawing = false;                  
+        var color = '#FF0000'                   //color wich is used to paint
+        var pickedColor = '#FF0000'             //color of the colorpicker
+        var canvas_size = 32;
+        var currentPattern = new Array(canvas_size);     //stores the displayed pattern
+        var prevX = -1;                         //used to prevent spam
+        var prevY = -1;
+        var names;                              //stores the names of the patterns
+        var pattern_load;
+        var live = false;                       //draw live on canvas or display saved patterns
+        var last_picked_color_guga = '#FF0000';
+        var max_iterations = 1024;
+        var load_on_back_converter = 0;
+
+        function changeTool(id_number)
+        {
+            for(let i = 0; i < tools.length; i++){
+                tools[i] = 0;
+            }
+            tools[id_number] = 1;
+            
+            //highlight selected tool
+            tools[0] == 0 ? (document.getElementById('pencil').style.backgroundColor = '#FFFFFF00') : (document.getElementById('pencil').style.backgroundColor = '#524561');
+            tools[1] == 0 ? document.getElementById('eraser').style.backgroundColor = '#FFFFFF00' : document.getElementById('eraser').style.backgroundColor = '#524561';
+            tools[2] == 0 ? document.getElementById('fill').style.backgroundColor = '#FFFFFF00' : document.getElementById('fill').style.backgroundColor = '#524561';
+            tools[3] == 0 ? document.getElementById('colorpickertool').style.backgroundColor = '#FFFFFF00' : document.getElementById('colorpickertool').style.backgroundColor = '#524561';
+        }
+        
+        function changeColor(tempcolor){
+            color = tempcolor;
+        }
+        
+        function changeMode(){
+            live = !live;
+            //highlight selection if true
+            live ? document.getElementById('live').style.backgroundColor = '#FFFFFF00' : document.getElementById('live').style.backgroundColor = '#524561';
+            
+            //new POST request to the arduino to change mode
+            var xhr = new XMLHttpRequest();
+                xhr.open("POST", "mode", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                xhr.send("mode="+live);
+        }
+        
+        function draw(x,y,drawColor,post){
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var rect = canvas.getBoundingClientRect();
+            var size = (rect.width / canvas_size);
+            var index = (y*canvas_size+x);
+            if(post && live){
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "live", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                xhr.send("i="+index+"&c="+drawColor.slice(1));
+            }
+            //update currentPattern array with the new color and draw new pixel on canvas
+            currentPattern[y][x] = drawColor;
+        
+            x = x * size;
+            y =  y* size;
+            ctx.fillStyle= drawColor;
+            if(drawColor == '#000000'||drawColor == '0x000000'){    //black pixel = transparent pixel (looks better)
+                ctx.clearRect(x,y,size,size);
+            }
+            else{
+                //console.log("Draw on X:"+ x +" Y:"+ y);
+                ctx.fillRect(x,y,size,size);
+            }
+            drawGrid(0,0);                                          //redraw the grid
+        }
+        
+        function drawGrid(x,y){
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            var rect = canvas.getBoundingClientRect();
+            var size = (rect.width / canvas_size);
+            for(var i = 0; i < canvas_size; i++){
+                for(var j = 0; j < canvas_size; j++){
+                    x = i * size;
+                    y =  j* size;
+                    ctx.strokeRect(x,y,size,size);
+                    }
+                }  
+        }
+        
+        function fill(x,y,referenceColor){
+            
+            // console.log("Fill y la concha de la madre");
+            /*
+            This is a very basic fill algorithm making use of recursion. I added a little delay to make it
+            animate a little. Unfortunately the POST requests that "draw()" makes are quite slow
+            Guga mete mano (cuando no) Limito iteraciones máximas del método (en fc del tamaño del canvas)
+            Si quieren pinter de a más: que repitan la operación: es para evitar cuelgues and unresponsive
+            app
+            */
+            setTimeout(function(){
+                if(x>=0 && x<=(canvas_size-1) && y>=0 && y <=(canvas_size-1) && max_iterations>0 ){
+                    max_iterations--;
+                if(currentPattern[y][x] == referenceColor){
+                    draw(x,y,color,1);
+                    fill(x,y-1,referenceColor);
+                    fill(x,y+1,referenceColor);
+                    fill(x-1,y,referenceColor);
+                    fill(x+1,y,referenceColor)
+                    }
+        
+                }
+            },40)
+        }   
+        // Intentando recoger el color desde el canvas
+        function findPos(obj) {
+            var curleft = 0, curtop = 0;
+            if (obj.offsetParent) {
+                do {
+                    curleft += obj.offsetLeft;
+                    curtop += obj.offsetTop;
+                } while (obj = obj.offsetParent);
+                return { x: curleft, y: curtop };
+            }
+            return undefined;
+        }            
+        function rgbToHex(r, g, b) {
+            if (r > 255 || g > 255 || b > 255)
+            throw "Invalid color component";
+            return ((r << 16) | (g << 8) | b).toString(16);
+        }
+        // OJO; las coordenadas desde las que debo chupar el color las saqué a huevo
+        // No pude hacerlo relativo al canvas; como las otras funciones
+        // pero funciona!                
+        function pickcolorguga(x,y){
+            var example = document.getElementById('canvas');
+            var context = example.getContext('2d');
+           // console.log("Read color from X:"+ x + " Y:" + y);
+            var p = context.getImageData(x, y, 1, 1); 
+            var hex = "#" + ("000000" + rgbToHex(p.data[0], p.data[1], p.data[2])).slice(-6);
+           // console.log("Pixel color" + String(p.data[0]));
+          //  console.log("Pick Color Guga X:"+String(x)+"Y:"+String(y) +"color:"+String(hex));
+        
+            //var pickedColor = document.getElementById("pickedColor");           
+            //pickedColor = hex;
+          //  color = pickedColor;
+            document.getElementById('pickedColorGuga').style.backgroundColor = hex;
+            last_picked_color_guga = hex;
+            changeColor(hex);
+        }
+        // Fn de intentando
+        
+        function clearCanvas(){
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+        
+            for(var i=0; i<canvas_size; i++){
+                    for(var j=0; j<canvas_size; j++){
+                        currentPattern[i][j] = '#000000'
+                    }
+                }
+            drawGrid(0,0);
+            
+            if(live){
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "live", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                xhr.send("cl=1");
+            }
+        }
+        
+        function save(){
+            var name = window.prompt("Ingrese nombre (hasta 15 caracteres):","mario");
+            if(name.length > 15){
+                    window.alert("Los nombres no pueden tener mas que 15 caracteres. Lo siento :(")
+                }
+            else{
+                var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "save", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                    var message = "pt=\n";  
+                    // Solo mando nombre; ya no mando canvas desde la web app
+                    message += "&name=" + name;
+                    console.log(message);   //Add by guga to see what it sends
+                    xhr.send(message);
+                }
+        }
+        
+        function deletePattern(){
+            var name = window.prompt("Enter the name of the pattern that you want to delete:","mario");
+            //check if name is valid
+            if(!names.includes(name)){
+                    window.alert("There is no pattern with this name :(")
+                }
+            else{
+                var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "delete", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                    var message = "name=" + name;
+                    xhr.send(message);
+                }
+        }
+        
+        // Fetch para solicitude funciona mejor que xmlhttp
+        async function postData(url = '', data = {} , options = {} ) {
+            // Opciones por defecto estan marcadas con un *
+            //console.log(data);
+            const { timeout = 5000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', //con este works la solicitud
+                'Accept': 'application/json',    //y con este works
+
+                // 'Content-Type': 'application/octet-stream', //con este el esp no entiende el id de pregunta
+
+                // 'Content-Type': 'text/html',
+                // 'Accept': 'application/json, text/plain, */*, application/octet-stream', //
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: String(data),          // body data type must match "Content-Type" header
+                options,
+                signal: controller.signal
+            })
+            const resText = await response.text();
+            // console.log(resText);
+
+            // console.log(response.body);
+            // console.log(response.text);
+            // var data_array = response.text().toString();//            responseText();// arrayBuffer();
+            // console.log(data_array);
+
+            // var loadedPattern = response.arrayBuffer.arguments(); //.split("\n");
+            // //var string_array = data_array.split("\n");
+            // console.log(loadedPattern);
+            // // var array_string = data_array.toString();
+            
+            // // console.log(array_string);
+            // // var enc = new TextDecoder("utf-8");
+            // // console.log(enc.decode(data_array));
+            clearTimeout(id);
+            // return (string_array);
+
+            return (resText);
+        }
+        // Redibujar el canvas cuando tengamos el archivo (que viene chunkeado) y sepamos el tamaño
+        // de canvas con que lo hicieron!
+        // Ver si puede ser medio "automático"
+        function loadPatternChunked()
+        {
+            var print_on_web = new Boolean(true);
+            var select = document.getElementById("selection");      //veo a cual file le hicieron click (en la web app)
+            var id = select.value;
+            var message = "id="+id;
+            var loadedPattern;
+            postData( 'http://'+window.location.hostname+'/load', message)
+            .then(data => {
+                // console.log(data);  // JSON data parsed by `data.json()` call
+                //console.log(JSON.stringify(data));
+                loadedPattern = data.split("\n");
+                // loadedPattern = data.slice(-6); //
+                console.log(loadedPattern);
+
+                if(loadedPattern.length == 257)
+                {
+                    console.log("Canvas 16x16-infered from file");
+                    canvas_size = 16;
+                }
+                else if (loadedPattern.length == 1025)
+                {
+                    console.log("Canvas 32x32-infered from file");
+                    canvas_size = 32;
+                }
+                else if(loadedPattern.length == 4097)
+                {
+                    console.log("Canvas 64x64-infered from file");
+                    canvas_size = 64;
+                }
+                else 
+                {
+                    print_on_web = false;   //llegaron, chunks; llegó el último, 
+                    console.log("Falló la lectura o se perdieron chunks; o algo paso");
+                    // window.alert("Falló la lectura; por favor, reintente");
+                }
+                if(print_on_web == true)
+                {    
+                    console.log("Supuestamente todo bien");
+                    var t0 = performance.now();
+                    //create a 2 dimensional array to store the current pattern
+                    var canvas = document.getElementById('canvas');
+                    var ctx = canvas.getContext('2d');
+                    var rect = canvas.getBoundingClientRect();
+                    var size = (rect.width / canvas_size);
+                    // drawGrid(0,0);  //ver donde poner para que arregle el grid!
+                    for(var i=0; i<canvas_size; i++)
+                    {
+                        currentPattern[i] = new Array(canvas_size);
+                    }
+                    // currentPattern = new Array(canvas_size); 
+                    for(var i=0; i<canvas_size; i++)
+                    {
+                        for(var j=0; j<canvas_size; j++)
+                        {
+                            currentPattern[i][j] = '#'+loadedPattern[i*canvas_size+j].slice(2);
+                            x = j *size;
+                            y = i *size;
+                            ctx.fillStyle = currentPattern[i][j];
+                            // yo estaba dibujando BLACK! en lugar de transparente y las lineas YA ERAN NEGRAS
+                            if(currentPattern[i][j] == '#000000'|| currentPattern[i][j] == '0x000000'){    //black pixel = transparent pixel (looks better)
+                                ctx.clearRect(x,y,size,size);
+                                // console.log("transparent!");
+                            }    
+                            else
+                            {                        
+                                ctx.fillRect(x,y,size,size);
+                            }
+                        }
+                    }
+                    drawGrid(0,0);
+                    var t1=performance.now();
+                    console.log("Took: "+(t1-t0)+"msecs");            
+                }
+            });
+        }
+
+        // Cuando la respuesta no entre en una sola respuesta se romperá
+        // todo; asi que hago la entrega de nombres "chunkeable"
+        // (así puede ir en varias partes) 
+        function transferCompleteNames(evt) 
+        {
+            console.log("La transferencia se ha completado.");
+            if (this.status != 200) 
+            { // analiza el estado HTTP de la respuesta
+                // alert(`Error ${this.status}: ${this.statusText}`); // ej. 404: No encontrado
+                console.log("Some error");
+            } 
+            else 
+            {   // muestra el resultado
+                var selection = document.getElementById("selection");
+                // alert(`Hecho, obtenidos ${this.response.length} bytes`); // Respuesta del servidor
+                
+                // names = JSON.parse(this.responseText);
+                names = this.responseText.split("\n");
+                
+                console.log("Find names:",names);
+                for(var i=0; i<names.length; i++){
+                    if(!(names[i].includes("^"))){
+                    var option = document.createElement('option');
+                    option.value = i;
+                    option.innerHTML = names[i];
+                    selection.appendChild(option);
+                    }
+                }          
+            }
+        }
+        function transferFailedNames(evt) 
+        {
+            console.log("Se ha producido un error al transferir el archivo names.txt");
+        }
+        
+        function getNames()
+        {
+            // var selection = document.getElementById("selection");
+            //make a new GET request to the arduino which reads the names from the SD card
+            var xmlHttp = new XMLHttpRequest();
+        
+            xmlHttp.open("GET", "get", true );
+            xmlHttp.ontimeout = () => 
+            {
+                console.log(`The request timed out.`);
+                xmlHttp.abort();
+                return;
+            };    
+            xmlHttp.addEventListener("load", transferCompleteNames);
+            xmlHttp.addEventListener("error", transferFailedNames);
+            xmlHttp.timeout = 1000;
+            xmlHttp.send();
+        }
+        
+        // Si hacen click en descargar APK!
+        function DownloadAPK()
+        {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", "downloadAPK", true );
+            xmlHttp.send();
+        }
+        
+        // function openConverter()
+        // {
+        //     var xmlHttp = new XMLHttpRequest();
+        //     xmlHttp.open("GET", "openConverter", true );
+        //     xmlHttp.send();            
+        // }
+
+        //gets executed when the web page is loaded
+        function initialise()
+        {
+            
+            //get the parameters of the canvas and draw the grid
+            var canvas = document.getElementById("canvas");
+            var size = canvas.clientWidth;
+            canvas.height = size;
+            canvas.width = size;
+            drawGrid(0,0);
+            changeTool('0');
+        
+            //create a 2 dimensional array to store the current pattern
+            for(var i=0; i<canvas_size; i++)
+            {
+                currentPattern[i] = new Array(canvas_size);
+            }
+            for(var i=0; i<canvas_size; i++)
+            {
+                for(var j=0; j<canvas_size; j++)
+                {
+                    currentPattern[i][j] = '#000000'
+                }
+            }
+                //get the names and change the mode to live drawing
+            getNames(); //comento mientras pruebo huevadas!
+            changeMode();
+
+            //getCanvasSizes();
+        }
+        
+        //add the event handlers when the webpage is fully loaded
+        document.addEventListener("DOMContentLoaded", function(event) {
+            console.log("DOM fully loaded and parsed");
+            initialise();
+        
+            canvas.addEventListener("mousemove", function(e){
+                if(isDrawing == true){
+                    var canvas = document.getElementById("canvas");
+                    var rect = canvas.getBoundingClientRect();
+                    var x = e.clientX - rect.left;                      //calculate wich of the 256 pixel the mouse is over
+                    var y = e.clientY - rect.top;
+                    x = Math.floor(x*(canvas_size/rect.width));                  //calculate wich of the 256 pixel the mouse is over
+                    y = Math.floor(y*(canvas_size/rect.height));
+                    // if(x != prevX || y != prevY){                       //functions only execute when new square is selected
+                        if(tools[0]==1){
+                            draw(x,y,color,1);
+                        }
+                        else if(tools[1]==1){
+                            draw(x,y,'#000000',1);
+                        }
+                    // }
+                    prevX = x;
+                    prevY = y;
+                }
+            });
+            
+        
+           // Para dibujar arrastrando en navegador de mobile
+            canvas.addEventListener("touchmove", function(e){
+                // console.log("Mother focker1");
+                e.preventDefault();
+                var touch = e.touches[0];
+                var canvas = document.getElementById("canvas");
+                var rect = canvas.getBoundingClientRect();
+                var x = touch.clientX - rect.left;                            //calculate wich of the "n" pixel the mouse is over
+                var y = touch.clientY - rect.top;      
+                var feed_gu_x = x;
+                var feed_gu_y = y;
+                x = Math.floor(x*(canvas_size/rect.width));                        //calculate wich of the "n" pixel the mouse is over
+                y = Math.floor(y*(canvas_size/rect.height));
+        
+                // if(x != prevX || y != prevY){                             //functions only execute when new square is selected
+                    if(tools[0]==1){
+                        draw(x,y,color,1);
+                        isDrawing = true;
+                        // console.log("X:"+ String(x)+"Y:" + String(y)+"color:"+String(color));
+                    }
+                    else if(tools[1]==1){
+                        draw(x,y,'#000000',1);
+                        isDrawing = true;
+                    }
+                    else if(tools[2]==1){       
+                        max_iterations = 1024;   
+                        fill(x,y,currentPattern[y][x]);
+                    }
+                // }
+                if(tools[3]==1){
+                    pickcolorguga(feed_gu_x,feed_gu_y);
+                }                    
+                prevX = x;
+                prevY = y;
+            });
+        
+            // Para dibujar arrastrando en navegador de escritorio
+            canvas.addEventListener("mousedown", function(e){
+                // console.log("Mother focker");
+                // var touch = e.touches[0];
+                var canvas = document.getElementById("canvas");
+                var rect = canvas.getBoundingClientRect();
+                // var x = touch.clientX - rect.left;                            //calculate wich of the "n" pixel the mouse is over
+                // var y = touch.clientY - rect.top;
+                var x = e.clientX - rect.left;                            //calculate wich of the "n" pixel the mouse is over
+                var y = e.clientY - rect.top;
+                var feed_gu_x = x;      //me guardo la posicion x e y absolutas del canvas para que 
+                var feed_gu_y = y;      //mi choto metodo de "chupar" color funcione bien
+                x = Math.floor(x*(canvas_size/rect.width));                        //calculate wich of the "n" pixel the mouse is over
+                y = Math.floor(y*(canvas_size/rect.height));
+        
+                // if(x != prevX || y != prevY){                             //functions only execute when new square is selected
+                    if(tools[0]==1){
+                        draw(x,y,color,1);
+                        isDrawing = true;
+                        // console.log("X1:"+ String(x)+"Y1:" + String(y)+"color1:"+String(color));
+                        // console.log("Mother foca");
+                    }
+                    else if(tools[1]==1){
+                        draw(x,y,'#000000',1);
+                        isDrawing = true;
+                    }
+                    else if(tools[2]==1){          
+                        max_iterations = 1024;
+                        fill(x,y,currentPattern[y][x]);
+                    }
+                // }
+                if(tools[3]==1){
+                    pickcolorguga(feed_gu_x,feed_gu_y);
+                   }
+                prevX = x;
+                prevY = y;
+            });
+        
+            canvas.addEventListener("mouseup", function(e){
+                isDrawing = false;
+            });
+        
+            canvas.addEventListener("mouseout", function(e){                    //executes when mouse leaves canvas element
+                isDrawing = false;
+            });
+        
+            var colorpicker = document.getElementById("colorpicker");           
+            colorpicker.addEventListener("input", function(){
+                pickedColor = colorpicker.value;
+                color = pickedColor;
+                document.getElementById('pickedColor').style.backgroundColor = color;
+            });
+
+            
+            // Esperar que cargue todo y recien ahí habilitar websocket o se rompe todo!                
+            // var websoc = new WebSocket('ws://'+window.location.hostname+':80/ws');
+            //websoc.binaryType = "arraybuffer";
+            // Ws events - aca debería agarrar el Json con el digujo a poner en el canvas!
+            // cuando hacen back desde el converter
+            //caca
+            // websoc.onopen = function() 
+            // {
+            //     console.log("Client Connected");  
+            // };      
+            
+            // websoc.onmessage = (event) => {
+            //     console.log("Data arrived");
+            //     console.log(event.data);
+            //     if(event.data == "PidemeVato")
+            //     {
+            //         console.log("Pedir archivo 1000000");
+            //         // load_on_back_converter = 1;
+            //         // loadPatternChunked();
+            //     }
+            //     // websoc.close(); //ver si hay que cerrar o no!!!
+            //     // const msg = JSON.parse(event.data);
+            //     // let text = "";
+            // };   
+
+        });
+        //Guga trampeando para acomodar tamaños automaticamente
+        // Aca cuando eligen desde el seector, le viso al ESP el size
+        function redrawcanvasselector()
+        {
+            console.log("Re Draw Canvas ON SELECTOR selection ");
+        
+            var selector_size = document.getElementById("selectionPX");
+            if(selector_size.value == 1)
+            {
+                console.log("Selector canvas 16x16");
+                canvas_size = 16;
+            }
+            else if(selector_size.value == 2)
+            {
+                console.log("Selector canvas 32x32");
+                canvas_size = 32;
+            }
+            else if(selector_size.value == 3)
+            {
+                console.log("Selector canvas 64x64");
+                canvas_size = 64;
+            }                
+         //get the parameters of the canvas and draw the grid
+            var canvas = document.getElementById("canvas");
+            var size = canvas.clientWidth;
+            canvas.height = size;
+            canvas.width = size;
+            drawGrid(0,0);
+            changeTool('0');
+        
+            //create a 2 dimensional array to store the current pattern
+            for(var i=0; i<canvas_size; i++)
+            {
+                currentPattern[i] = new Array(canvas_size);
+            }
+            for(var i=0; i<canvas_size; i++)
+            {
+                for(var j=0; j<canvas_size; j++)
+                {
+                    currentPattern[i][j] = '#000000'
+                }
+            }
+            var xhr = new XMLHttpRequest();
+                xhr.open("POST", "changecanvas", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                xhr.send("canvas="+canvas_size);
+        }
+        // Aca cuando leen un file, acomodo al tamaño y lo adopto para seguir operando
+        // también le aviso al ESP
+        function redrawcanvasload()
+        {
+            console.log("Re Draw Canvas ON LOAD of file ");
+            console.log("For this pass canvas_size is:");
+            console.log(canvas_size);
+            //get the parameters of the canvas and draw the grid
+            var canvas = document.getElementById("canvas");
+            var size = canvas.clientWidth;
+            canvas.height = size;
+            canvas.width = size;
+            drawGrid(0,0);
+            changeTool('0');
+        
+            //create a 2 dimensional array to store the current pattern
+            for(var i=0; i<canvas_size; i++)
+            {
+                currentPattern[i] = new Array(canvas_size);
+            }
+            for(var i=0; i<canvas_size; i++)
+            {
+                for(var j=0; j<canvas_size; j++)
+                {
+                    currentPattern[i][j] = '#000000'
+                }
+            }
+        }
+    </script>      
+
+    <style>
+        html,body{
+            height: 100%;
+            padding: 0.5%;
+            margin: 0%;
+        }
+        /*#container{
+            display: flex;
+            width: 75%;
+            height: 75%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }*/
+        #canvas{
+            /*display: flex;
+            justify-content: center;*/
+            box-shadow: 0px 0px 0px 4px #BB86fc;
+            /*transform: translate(-0%, -50%);*/
+            width: 75%;
+            /*max-width: 700px;*/
+            cursor: crosshair;
+            touch-action: none;
+            background-color: #1d1d1f;
+            /*float: left;*/
+        }    
+        #toolbar{
+            /*transform: translateY(-50%);*/
+            /*display: flex;
+            flex-wrap: wrap;
+            margin-right: 20px;
+            padding: 0%;
+            max-width: 64px;
+            float: left;*/
+        }
+        #toolbar .item{
+            /*float: left;*/
+            line-height: 32px;
+            /*padding: 15px;*/
+            border: 1px solid #BB86fc;
+            /*cursor: pointer;*/
+            height: 55px;
+            width: 55px;
+            background: none;
+            font-family: Arial, FontAwesome;
+            font-size: 24px;
+            color: #CF6679;
+            /*text-align: center;
+            vertical-align: bottom;*/
+        }
+        #selection{
+            /*float: left;
+            padding: 3px;*/
+            border: 1px solid #BB86fc;
+            cursor: pointer;
+            height: 55px;
+            width: 55px;
+            background: #524561;;
+            font-family: Arial, FontAwesome;
+            font-size: 20px;
+            color: #EDF607;
+        }
+        #selection option{
+            background-color: #1d1d1f;
+            /*padding: 20px;*/
+        }
+        #selectionPX{
+            border: 1px solid #BB86fc;
+            cursor: pointer;
+            height: 55px;
+            width: 55px;
+            /* background: #00000000; */
+            background: #242129;
+            font-family: Arial, FontAwesome;
+            font-size: 20px;
+            text-align: center;
+            color: #EDF607;
+        }
+
+        #colorbar .color{
+            float: left;
+            line-height: 32px;
+            padding: 15px;
+            border: 1px solid #BB86fc;
+            cursor: pointer;
+            height: 56px;
+            width: 56px;
+        }
+        #coloritem{
+            float: left;
+            line-height: 16px;
+            padding: 15px;
+            padding: 0px;
+            border: 1px solid #BB86fc;
+            cursor: pointer;
+            height: 56px;
+            width: 56px;
+            background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+        }
+
+        #coloritem input{
+            border: none;
+            background: none;
+            width: 47px;
+            padding: 100%;
+            float: left;
+        }
+        #coloritem i{
+            width: 240px;
+            height: 240px;
+            color: red;
+            float: left;
+            font-family: Arial, FontAwesome;
+            font-size: 24px;
+        }
+    </style>
+    <style>
+    /*!
+    * Bootstrap  v5.3.0-alpha3 (https://getbootstrap.com/)
+    * Copyright 2011-2023 The Bootstrap Authors
+    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+    */:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-black:#000;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-gray-100:#f8f9fa;--bs-gray-200:#e9ecef;--bs-gray-300:#dee2e6;--bs-gray-400:#ced4da;--bs-gray-500:#adb5bd;--bs-gray-600:#6c757d;--bs-gray-700:#495057;--bs-gray-800:#343a40;--bs-gray-900:#212529;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-primary-rgb:13,110,253;--bs-secondary-rgb:108,117,125;--bs-success-rgb:25,135,84;--bs-info-rgb:13,202,240;--bs-warning-rgb:255,193,7;--bs-danger-rgb:220,53,69;--bs-light-rgb:248,249,250;--bs-dark-rgb:33,37,41;--bs-primary-text-emphasis:#052c65;--bs-secondary-text-emphasis:#2b2f32;--bs-success-text-emphasis:#0a3622;--bs-info-text-emphasis:#055160;--bs-warning-text-emphasis:#664d03;--bs-danger-text-emphasis:#58151c;--bs-light-text-emphasis:#495057;--bs-dark-text-emphasis:#495057;--bs-primary-bg-subtle:#cfe2ff;--bs-secondary-bg-subtle:#e2e3e5;--bs-success-bg-subtle:#d1e7dd;--bs-info-bg-subtle:#cff4fc;--bs-warning-bg-subtle:#fff3cd;--bs-danger-bg-subtle:#f8d7da;--bs-light-bg-subtle:#fcfcfd;--bs-dark-bg-subtle:#ced4da;--bs-primary-border-subtle:#9ec5fe;--bs-secondary-border-subtle:#c4c8cb;--bs-success-border-subtle:#a3cfbb;--bs-info-border-subtle:#9eeaf9;--bs-warning-border-subtle:#ffe69c;--bs-danger-border-subtle:#f1aeb5;--bs-light-border-subtle:#e9ecef;--bs-dark-border-subtle:#adb5bd;--bs-white-rgb:255,255,255;--bs-black-rgb:0,0,0;--bs-font-sans-serif:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--bs-font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--bs-gradient:linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));--bs-body-font-family:var(--bs-font-sans-serif);--bs-body-font-size:1rem;--bs-body-font-weight:400;--bs-body-line-height:1.5;--bs-body-color:#212529;--bs-body-color-rgb:33,37,41;--bs-body-bg:#fff;--bs-body-bg-rgb:255,255,255;--bs-emphasis-color:#000;--bs-emphasis-color-rgb:0,0,0;--bs-secondary-color:rgba(33, 37, 41, 0.75);--bs-secondary-color-rgb:33,37,41;--bs-secondary-bg:#e9ecef;--bs-secondary-bg-rgb:233,236,239;--bs-tertiary-color:rgba(33, 37, 41, 0.5);--bs-tertiary-color-rgb:33,37,41;--bs-tertiary-bg:#f8f9fa;--bs-tertiary-bg-rgb:248,249,250;--bs-link-color:#0d6efd;--bs-link-color-rgb:13,110,253;--bs-link-decoration:underline;--bs-link-hover-color:#0a58ca;--bs-link-hover-color-rgb:10,88,202;--bs-code-color:#d63384;--bs-highlight-bg:#fff3cd;--bs-border-width:1px;--bs-border-style:solid;--bs-border-color:#dee2e6;--bs-border-color-translucent:rgba(0, 0, 0, 0.175);--bs-border-radius:0.375rem;--bs-border-radius-sm:0.25rem;--bs-border-radius-lg:0.5rem;--bs-border-radius-xl:1rem;--bs-border-radius-xxl:2rem;--bs-border-radius-2xl:var(--bs-border-radius-xxl);--bs-border-radius-pill:50rem;--bs-box-shadow:0 0.5rem 1rem rgba(0, 0, 0, 0.15);--bs-box-shadow-sm:0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);--bs-box-shadow-lg:0 1rem 3rem rgba(0, 0, 0, 0.175);--bs-box-shadow-inset:inset 0 1px 2px rgba(0, 0, 0, 0.075);--bs-focus-ring-width:0.25rem;--bs-focus-ring-opacity:0.25;--bs-focus-ring-color:rgba(13, 110, 253, 0.25);--bs-form-valid-color:#198754;--bs-form-valid-border-color:#198754;--bs-form-invalid-color:#dc3545;--bs-form-invalid-border-color:#dc3545}[data-bs-theme=dark]{color-scheme:dark;--bs-body-color:#adb5bd;--bs-body-color-rgb:173,181,189;--bs-body-bg:#212529;--bs-body-bg-rgb:33,37,41;--bs-emphasis-color:#fff;--bs-emphasis-color-rgb:255,255,255;--bs-secondary-color:rgba(173, 181, 189, 0.75);--bs-secondary-color-rgb:173,181,189;--bs-secondary-bg:#343a40;--bs-secondary-bg-rgb:52,58,64;--bs-tertiary-color:rgba(173, 181, 189, 0.5);--bs-tertiary-color-rgb:173,181,189;--bs-tertiary-bg:#2b3035;--bs-tertiary-bg-rgb:43,48,53;--bs-primary-text-emphasis:#6ea8fe;--bs-secondary-text-emphasis:#a7acb1;--bs-success-text-emphasis:#75b798;--bs-info-text-emphasis:#6edff6;--bs-warning-text-emphasis:#ffda6a;--bs-danger-text-emphasis:#ea868f;--bs-light-text-emphasis:#f8f9fa;--bs-dark-text-emphasis:#dee2e6;--bs-primary-bg-subtle:#031633;--bs-secondary-bg-subtle:#161719;--bs-success-bg-subtle:#051b11;--bs-info-bg-subtle:#032830;--bs-warning-bg-subtle:#332701;--bs-danger-bg-subtle:#2c0b0e;--bs-light-bg-subtle:#343a40;--bs-dark-bg-subtle:#1a1d20;--bs-primary-border-subtle:#084298;--bs-secondary-border-subtle:#41464b;--bs-success-border-subtle:#0f5132;--bs-info-border-subtle:#087990;--bs-warning-border-subtle:#997404;--bs-danger-border-subtle:#842029;--bs-light-border-subtle:#495057;--bs-dark-border-subtle:#343a40;--bs-link-color:#6ea8fe;--bs-link-hover-color:#8bb9fe;--bs-link-color-rgb:110,168,254;--bs-link-hover-color-rgb:139,185,254;--bs-code-color:#e685b5;--bs-border-color:#495057;--bs-border-color-translucent:rgba(255, 255, 255, 0.15);--bs-form-valid-color:#75b798;--bs-form-valid-border-color:#75b798;--bs-form-invalid-color:#ea868f;--bs-form-invalid-border-color:#ea868f}*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:var(--bs-body-font-family);font-size:var(--bs-body-font-size);font-weight:var(--bs-body-font-weight);line-height:var(--bs-body-line-height);color:var(--bs-body-color);text-align:var(--bs-body-text-align);background-color:var(--bs-body-bg);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,select{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}select{word-wrap:normal}select:disabled{opacity:1}button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}::file-selector-button{font:inherit;-webkit-appearance:button}[hidden]{display:none!important}.container{--bs-gutter-x:1.5rem;--bs-gutter-y:0;width:100%;padding-right:calc(var(--bs-gutter-x) * .5);padding-left:calc(var(--bs-gutter-x) * .5);margin-right:auto;margin-left:auto}@media (min-width:576px){.container{max-width:540px}}@media (min-width:768px){.container{max-width:720px}}@media (min-width:992px){.container{max-width:960px}}@media (min-width:1200px){.container{max-width:1140px}}@media (min-width:1400px){.container{max-width:1320px}}:root{--bs-breakpoint-xs:0;--bs-breakpoint-sm:576px;--bs-breakpoint-md:768px;--bs-breakpoint-lg:992px;--bs-breakpoint-xl:1200px;--bs-breakpoint-xxl:1400px}.row{--bs-gutter-x:1.5rem;--bs-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(-1 * var(--bs-gutter-y));margin-right:calc(-.5 * var(--bs-gutter-x));margin-left:calc(-.5 * var(--bs-gutter-x))}.row>*{flex-shrink:0;width:100%;max-width:100%;padding-right:calc(var(--bs-gutter-x) * .5);padding-left:calc(var(--bs-gutter-x) * .5);margin-top:var(--bs-gutter-y)}@media (min-width:768px){.col-md-1{flex:0 0 auto;width:8.33333333%}.col-md-10{flex:0 0 auto;width:83.33333333%}}.form-control[type=file]:not(:disabled):not([readonly]){cursor:pointer}.form-control::file-selector-button{padding:.375rem .75rem;margin:-.375rem -.75rem;-webkit-margin-end:.75rem;margin-inline-end:.75rem;color:var(--bs-body-color);background-color:var(--bs-tertiary-bg);pointer-events:none;border-color:inherit;border-style:solid;border-width:0;border-inline-end-width:var(--bs-border-width);border-radius:0;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}@media (prefers-reduced-motion:reduce){.form-control::file-selector-button{transition:none}}.form-control:hover:not(:disabled):not([readonly])::-webkit-file-upload-button{background-color:var(--bs-secondary-bg)}.form-control:hover:not(:disabled):not([readonly])::file-selector-button{background-color:var(--bs-secondary-bg)}.form-control-sm::file-selector-button{padding:.25rem .5rem;margin:-.25rem -.5rem;-webkit-margin-end:.5rem;margin-inline-end:.5rem}.form-control-lg::file-selector-button{padding:.5rem 1rem;margin:-.5rem -1rem;-webkit-margin-end:1rem;margin-inline-end:1rem}.form-control-color:not(:disabled):not([readonly]){cursor:pointer}[data-bs-theme=dark] .form-switch .form-check-input:not(:checked):not(:focus){--bs-form-switch-bg:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.25%29'/%3e%3c/svg%3e")}.form-floating>.form-control-plaintext:not(:-moz-placeholder-shown),.form-floating>.form-control:not(:-moz-placeholder-shown){padding-top:1.625rem;padding-bottom:.625rem}.form-floating>.form-control:not(:-moz-placeholder-shown)~label{color:rgba(var(--bs-body-color-rgb),.65);transform:scale(.85) translateY(-.5rem) translateX(.15rem)}.form-floating>.form-control:not(:-moz-placeholder-shown)~label::after{position:absolute;inset:1rem 0.375rem;z-index:-1;height:1.5em;content:"";background-color:var(--bs-body-bg);border-radius:var(--bs-border-radius)}.form-floating>:disabled~label{color:#6c757d}.form-floating>:disabled~label::after{background-color:var(--bs-secondary-bg)}.input-group>.form-control:not(:focus).is-valid,.input-group>.form-floating:not(:focus-within).is-valid,.input-group>.form-select:not(:focus).is-valid,.was-validated .input-group>.form-control:not(:focus):valid,.was-validated .input-group>.form-floating:not(:focus-within):valid,.was-validated .input-group>.form-select:not(:focus):valid{z-index:3}.input-group>.form-control:not(:focus).is-invalid,.input-group>.form-floating:not(:focus-within).is-invalid,.input-group>.form-select:not(:focus).is-invalid,.was-validated .input-group>.form-control:not(:focus):invalid,.was-validated .input-group>.form-floating:not(:focus-within):invalid,.was-validated .input-group>.form-select:not(:focus):invalid{z-index:4}.btn:focus-visible{color:var(--bs-btn-hover-color);background-color:var(--bs-btn-hover-bg);border-color:var(--bs-btn-hover-border-color);outline:0;box-shadow:var(--bs-btn-focus-box-shadow)}.btn-check:focus-visible+.btn{border-color:var(--bs-btn-hover-border-color);outline:0;box-shadow:var(--bs-btn-focus-box-shadow)}.btn-check:checked+.btn:focus-visible,.btn.active:focus-visible,.btn.show:focus-visible,.btn:first-child:active:focus-visible,:not(.btn-check)+.btn:active:focus-visible{box-shadow:var(--bs-btn-focus-box-shadow)}.btn-link:focus-visible{color:var(--bs-btn-color)}.nav-link:focus-visible{outline:0;box-shadow:0 0 0 .25rem rgba(13,110,253,.25)}.icon-link-hover:focus-visible>.bi{transform:var(--bs-icon-link-transform,translate3d(.25em,0,0))}.visually-hidden-focusable:not(:focus):not(:focus-within){width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.visually-hidden-focusable:not(:focus):not(:focus-within):not(caption){position:absolute!important}.text-center{text-align:center!important}
+    /*# sourceMappingURL=bootstrap.min.css.map */
+    </style>
+
+    </head>
+    <body>
+        <!-- <div id="status"></div> -->
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-1">
+                    <div id="toolbar">
+                        <br />
+                        <button class="item" id="pencil" onclick="changeTool('0')" title="Pencil">
+                            <i> 
+                                <img  width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAADr0lEQVR4nN2ay48TRxCHm6y7auACyi2CSCg3xBsCEoSNOAQECCRQFF4HhCIhkiCeEiGJAuKCwo0DIE4IAVceEjf+Aq45QC4cVtxg3TVe8FQNhEejtle7s/bYnrW3x579SX2wPdLU5+qurqpupQZUYVWvMAynSOAsRbDdWlVSRdSIVQEx3CZBO2Uw/kdVvUwVSdYqbQQfNcFIfRjBSplL61QRZK2aQ4L3W8HQJBSNRnqNKoLqa6Y9EA26p0ajeV8lP5PAmYxQNHCeKnPpW2eYYbyc/N4wnC6cp0IJvifGNxPGFRkqrOoVxCgpofli8jkS+D3r9OtrSLdWfUEMN1MNbIY6lwWKGJ9Zq4byBil1AxUK/JHJUzFuzQ3GvIUlxPA8lGBTN1BG4M/OUHAmFxiq6qUk8HLc0GoPUH+1BYrwSB4wy0jgVYOhvUD9nTrdGD+MxfiNV5iwqpcbgdEWhvYCdT7luSt+YSK90giUO0SmXqAuJH5/4LW8qER6VUeYSUMjt8kmoOYYgRstptXlppDO8NhahT5hVhsBkwlmcmMcM1xa342nrGfPTBsmCZVMYabjKZ+JZtgNTAIqzLqmQgmGPZYAek0tn+oBJrmmyjFubuUpw/jJ6wZaZr12xmA6QBnG9ybGw95gSIINbu7PKEybkF6J9GqfMBuJ8bUXmBae8ib3zyWLM89QbxrL9BkVSfBdXjCG8ZNhODkrPDMOc8InzLBbqPnB4HHfDY3cYMqMx2YNTMj4mzcYE+OW1O5MQWG25gzzqz8Yhh+JMc4J5qPXdCYM1fwc18wHI8Eh5VMket+sgXFqPD1zL/YBE4o+qHzLWjXU1KWJYLtheDGDMO9J9H6Vh0iCDVNeLvh0ytmnBF+7+oci2EEMt7qE2ZcLjBMxXmow4B/VQibGnwdymiVlBP9NGpEssBpFAj9NB4ZEH1B5yvDcRfV6fWK6UbsWkVtbGWH+Nwx7coVxIsZfphoCd1WnUqIzzLsyw27VD5mm+wHtp4jhuQvbNUccTMiwS/Xv9gZyMhqNjakvs+R7afuUYXwbRrBT9UvUsB7cQWwlxsWNz7l2Ur2h6Lr/8MTlYWkwLqyrfooErjUbBiMOqlJRC0j03vq+M35o1SYAUITbVL9lGEZSDRSs1DfDzNHMX0NjeidsXaYxLk1iuOM86DypBkFhxhPmicH4zHX/TYw/DOQdNhJ82AGAayGd8ajbfNWgiwSupgUEI3DdRT8X0lWRVKlFsVqUu1c74ivarcEGfQaOdcIxOr1ZdwAAAABJRU5ErkJggg==">
+                            </i>
+                            <!-- <i class="fas fa-pencil-alt"></i> -->
+                        </button>
+                        <button class="item" id="eraser" onclick="changeTool('1')" title="Eraser">
+                            <i>
+                                <img  width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC5ElEQVR4nN3aS4vTUBQH8CvaczKiH0FdCQqOLgRRF75f4EZFv4BuRJiN4sqNuHKhLgRxp+DOtSAKguIXUAQfGxcOjDqTc6LSnpP6wMgt0zHtpG3S5jZJ/5BVe8P99dx7c5PUmALD6u1iwasscJ8U7pLgDKu3zlQtgXobSOAFK0bdBwn+JMGbUWRqpgoJ6rVpVphPwnQcAs/mIrPalDnUhM2s8GUgZqla8HI+MmvMJGBKjaIhMVxG1KgYLhPKLgCksDAqhv8vFE+jyKycDIwuVkrhytgxXK9tcYHhFgi/+5FZOzaM34RNecyZ/gecmSAM2rn0oNLDjJeveB8nozK6BPo0MRh2CbLDrHujSYJ/KgnyEypDigErXKwcyO+B8aW2PVBvb6VAfh9M6/MQ91UG5A/ALIL2VwLkJ2JgIajXtnZ8L8QDpQf5KTGVAHHS0twDswg66BrEgh+Gwiw0YWMPzHSvNhTiIecVUnycGRNFBljwXRbM2ECCM5lBLHi+q8z1oFHbNqgdhXjYLQg+D3UrzgLP4ycKBC+kaUchHnFYmV/2OpcZ0wIpfI2dqDkbmalU7Rp41BWGBE4OhWl1TDCMDbf3adu5WOVoVEw3iBRfpW0XRWYFKdwpFWYUUBvFCrdLgxkVlAcqV0weoFFQuWPyAg2DcoLJE5QF5QyTNygNyinGBSi2pD8ZO8YViAROkeDvsWNcgHyBE7bzhWDyBtn9nd0PFoZJAL02Q6a1WY3vC4vA2Nj3MEudEPxhJ7TJmNbzBUEtHGNDim86OhLiWZMhgXp7WLBRCowNCd7oWF4Fxf7iJkVYvd32Drc0GJtAvfXdYz8NimTVDjtES4Vph0I8t+yq3gdln6CS4rdSYtphhctJqKABxzsrM7WTFLnUmH4oEvxLio9Y8BoJPixsBzBssrz3KT2mHVa4ZCszANOsBCa+wWSFuUSQ4Fs7l0zVMhuZKRI4zYq3WOAeCV7nBh4r7H84sfwDOfjWAxUXOrgAAAAASUVORK5CYII=">
+                            </i>
+                            <!-- <i class="fas fa-eraser"></i> -->
+                        </button>
+                        <button class="item" id="fill" onclick="changeTool('2')" title="Fill color">
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAACO0lEQVR4nO3azYrUQBAH8BKcqt2L+AB6VG8eFPQt/ADFi+8heNF30BdYb37rEwmKwk5Vz6wfVQzobpbenfFjJuPms7uTyR/6kpAmP6pJujsBGDJkyJAhGxxneFcMxRl+ZsVb0OdkGZwSQ3ZGmW+i9NPZ6B70Oc5wdwHeCLQYPvwb3Gs06+iqGE2WwXP0r4lt3YdNwLq+oUW3r4vRXg7y5fFw7tHw5jWVFcNH/rwo3slBd7PSfAJ2kV6guSC2F2guie00mitiO4nmmthOobkhbCfQ3DA2aTS3hE0SzS1jk0JzIGwSaA6MjYrmSNgoaI6MDYrmGV4So+nKEk/pMUSIX0K2urR0Rm9SwQZBO6VvKWFbR7tlcOKtNtoZvY6NCIoez/Bi7kOrA2hWvNn0ZlyWchPFj5XA3UXjF6gTSRx9fG/4QBQ/+Oqy4g2om/GP0RUxcilifUFqA7uAbhWbGjoINhV0UGxsdBRsLHRUbGh0Eawo3g7yH8m4ZXQhbAZnnOEnP+mYTuFsZ9FScBg7w6d/rsMnECLS8IysKHbyfXRZlPZ/X6e0749BiDRV6TIPKGf0PqePdxAqdStdBit6+pooHaz0oXTgz0GoVK102VePU3y2tj/FHQiZsugq79nlH9/+bbgLoVN0eFedVPxv702M9iBGTkLXmUE5o7dr+1V6DrEyR6/skfljdaaL8w8GeV9HRHT7HMSM3xg82g1V+nrUjF6NZ3ihbr/Ots47oxeLfn1lo2OHDBkyZAiUzyGO25/RojuT8AAAAABJRU5ErkJggg==">
+                            </i>
+                            <!-- <i class="fas fa-fill-drip"></i> -->
+                            <!-- No estaba en la version de fontawesome que me bajé para tener offline -->
+                            <!-- <i class="fas fa-paint-brush"></i> -->
+                        </button>
+                        <button class="item" id="colorpickertool" onclick="changeTool('3')" title="Select Color">
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC50lEQVR4nO2b3U4TURCAJ8jO1OCt+gSiRq40JvoUXABy4U9CvPYZRN/DaLww/ryA0TfAO30GBLtniFJn2kRwzUCxp0vbpZS2u3v2S/aiCW3PNzNnOltOASoqKspAkkBkF4RCksAMa3SPlT6w4jYrJU7oLytusdJ7Vlyxv4EyEkt0yyl9M+lBl1P6Wv8d3YQy4QSXWEiz5P9fQhILLkIZYMUVJ/TnxPKdIDRjmb0NQcprZzsUtiewRqujyHcuXIHQMs9+FQi9gzAzT0cVsAUhZp47FbBfiGGJxyDvBWAWwip78rfAdwgx89ypgLeQB7gR3Zhs5o8CgMvTMfZgoXUntLejtQeTynxuBiEWWvfK8SAIk5C3ewe7gZqufCNaSIva4/GXvb0HLkEecILLY892t/zejkb3IU+4CQUhl/ITa3iVfJTHzEer426Ch68VrUIRyt61y/SsekKhyt6lFjtqEAotP2oQSiF/2iCUSn7YIORW3vUQGHaxWUEotXxWEIKQHzQxpm+lg5LnPAaB+0x4p53ITjoxHjxuRAtQ9sy7PhOjU3wKochD6j2nLs8TKvter9frC9XSZz43xIKL08r81Km3cN4p/TyrTJ11JY0dFvwcZOYN18LrhyewvAU3aQ1CkDdY6FnXNCb4CUKRN1hpw190rLWHEIr87u6Fi/Z/dW/R+9uNuculbng+TmuPUjcjGxCKvOGE3nTvf3oOZS/7wVPa+TsQRubxuICiSxI4l/ncJq0VOvNxC6+lz+NmCWw15i7Zp0N6YCqcvMGCr7MErBJYa3etJ7DSF/+TotDyBiv+GDT1HTQ3RdfvKyuvYf4q3EntJIEZf+y1xuXv+5McZrLnO8WPdgMFRYTbv8DwhJ7YAUPXpMf95NtbYMPGZushUGRY8FUfwWP72+YEa37WBKEsxC28ar+0yCjz4jW3YYgFF/sGQUhyc/JqnNRbOM+CL1lx81AeN1nwRb2FV6a9toqKiooKGJ1/oToTbkVqYgwAAAAASUVORK5CYII=">
+                            </i>
+                            <!-- <i class="fas fa-tint"></i> -->
+                        </button>                
+                        <button class="item" id="delete" onclick="clearCanvas()" title="Clear canvas">
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFEUlEQVR4nO1aa4gcRRAuzU3X7pkEHwg+UXyA8fkj4qkovlA0gmJ8JYIQNSo+ECMmgmIQBSN6Yvyb/Aj+EKNwEQJGMP5QiQEV9IcGHyCegSQk07O3uZvqWTBJS+3u7M3Odd1pbvd6N8wHBUd1T21/31R3V/ccQIECBQoUKFCgQBexPx48TRO+FRHuighNZNA6jdsId2nCdfwMHAvQpJZGhBMiaVmMcU3qHuhnRLFaogkP/W/yTas/G+Pt0I/YZ+GEyKh9R0t+0tQejgX9hijGlbMn38yEBB+FfoMm/KhjAhB+CP0GTepr9+KmNoUULHYZt7kFUF9Bv0GT2inM6RekZ7hNEGAn9Ar2WBjUhO9qUqOdSvHZTxE1qgmHeWxdJW8tHKcNbvNNWBTC4GddFSAypWt9k5zZStd0T4AYH/dPcAaLcWXXBAgTvMk7wRksTPDGrglgLRyvSX3jm6RkvFtYC/Ogmxgfn3+qJtwcESa+CbeMMOHCi8cGcwVrIdAGt7oHpD6oJnheJ41jOt+6wa3WwgD4gDZqoyDAppxY81wHGmsB2fJ+7ptPZbFKNGoj+IImHBbScqTVp6YW8alQE/6jST2X+iuxujMipLrFakm2GmwcodXesKYumvTjiHve4zD4gjZqrZAB21t9CN/JvK2wRYjU9kz/LzIxdYbc287+7RmwFnxBk1olZMB3rYEbXJ8hdJiryfxZIa3165Um4eFMnPcycb4XVv7nPdEH0Ak+JqzKv7b6EK7LtqVz3iXAXxZKuThvpnEiwt967q5Ak7rPnQFqrzRNxsbgREmAahVOyqX3q2kc6XZJk7rXZwbcJmRAnBn46mzbgXjwdEmAkMpn5IR8sRWHF0t3BtzqiT6ApvLVUnGS7s2a8Nmsn/d0SYBqgudn+4aEz7CfY0m/o6k85E+AmrpYGhins2ud4GckAaKJ4BLX/K5W4WRRgJpa5E8AKp8pDaxiSudwn4oJHmp/q8FiSYCQBq5sjxMsZ/9YgudKv8PTxpsAoYUFogATweVNoktzwlwnCVAxpetzC1z9w0glDq6Qfme/hfneBLBT9+0pRKNY3eFatFwCTFlUmx9F8sK46gpv0AarzrfTLG/5fN6esuouSYCQ1N05EW9olc0uAQyOeSXP0KR2u9MzWNZoLw/l/A+Ki6AJlrW/4YGrmv7l7gxQf4NvaIO/OAUgfILbeS3ITYEV00yBR3LryGXsjwifFDLgZ8/0gYl8684AtZrbD9TUhW2kCJ8SF0HCp9sWuAQvYH9k1BohA3Z4pg9c6n4uZMDr9XYqn5Ub9Cp5CrR/GOFttu4nfEPIgG2e6QNXeh8LW9R6bj94cMEp7YNWL4tTwKhXsn25AGJ/ZPB9YRfY7Jk+8KA3THcrtNtCWRMeyWTGa/XnMper/Df7uC1D7gg/O8Nt0AbP9GG6W6Etk33UjpRUem0dGfVSZr1Yw74wwVtSsVJRGn1xS8/dBv2HW6EvW30sLOS6Pn9wYTHSvb7Vl8pD9b4WFqY+jtVzt0Ep+EZGyIAfoEPgWD13G5RCKlL4P77Sk99sUD8hit8gGsWWV1RyhU5ujh5qfLpWfx6ljU77T1YTwaW++QMfRiLCP8RBdssIf4degU5wxVwLEJrSw9ArsJwFBj+dQwFGvB+D8+CiJTL4SbfJc/WXFkg9B1vPhOABbfCnjhM3+GNk1P3QL4hM6Wyu7HjQs7EwwZs5lm8+BQoUKFCgQIECBeAYw7/Kjqm8dy9MpgAAAABJRU5ErkJggg==">
+                                
+                            </i>                            
+                            <!-- <i class="fas fa-trash"></i> -->
+                        </button>
+                        <button class="item" id="save" onclick="save()" title="Save image as">
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABN0lEQVR4nO3WsU7DMBAGYC+9c8TOAAgQa3kBEDwA4i14EkZ2JngOXoAufQQmVCGQEMJnQOldxiKnhJYIimPHZSC/5CXy5cvFpyhKdfl3sWM4JoEHEpxUa9H++p7POsbTRjAJ3M+jwXBTnGpoFCw4MYxnfwJ745QA/u0eQbBPfTBsRR/4oFb0YaswtbBUB9fTvWojeGU4W1eeeeZszdVED5fhbEM1zGO+skoC58RYBMMqIiR6nxjfksPEeGMYro3AhRW99YHvOTwpbBgGsyOC0TyuksICl1/nA+5eC9zxKo6BrehNw3AbhFPkcAXj9M2vj9cqp3d6li8FbrszruEjd/1neAxHaXB4orzXV8vIDAeH7paN5b3+ws7bxKtOHV4+hMAwOVzF4VMU3fffLg0uOxcYOtQUePIOXUa3JhfGFdsAAAAASUVORK5CYII=">
+                            </i>                            
+                            <!-- <i class="fas fa-save"></i> -->
+                        </button>
+                        <button class="item" id="live" onclick="changeMode()" title="Play stored images">
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAADL0lEQVR4nO2av2/TUBDHHxK5SyohIVigVVeQkBADjLDTSvyQOrHwY4aBAQgbLOVPgBEJNqjESJlgYgMWFhiK1LRA6/fcFnzXwFCji0GJTYqd+BdO30c6KYp8fvf1Oz8/n08pi8Vi6YNDcF4zrBqGry7BmQTHnzUMK5rBcQjOqSrh+2qXYfhiGH0xTbAY52MYWn+ONwyf5RyqKjhtONwNHn2Z6TifIBu6PnIOVRX0Jl6OCH4e68MwH/apX1JVQTM86A3eEN6N85FjIhfpvqoKmvFtSLCHp+N8jAdTIR/GN8VE2wfD9UnDOGcIv0WCKt+CmJ5lds8brk9qRlO6sBjTjK7EmoFgnCtbzAD2JL1g+g/TePv03shihv1SU5Xwh2G45VBjXMwwNIP/+h9fecGGofl3TNAcWcGr3tjBaEwr3tiBkRXsUGM8GpOmxsSOSmmX4fbICtbBotXcQYsWDmRW8KAMdIUJXkrlQlZWMfmtCV6N5gwTzvarUnSqH4SzIyVYM9yJP8/2m4VKCdYJxBYpOl/BFF/JiKtshC4ewSdNcN39Xju6tqb2rrbhkOHaBVkbyhdMg4uNFU14bzsfvYlXDKFXmmCV9rx9RMtL/L98dBuOaMb3lRTcv3CH71QMy74aMwQPKylYcAivaoIFTfDa9WrHVEIqK3hYrGC2MzwceW8UsrYhZXYpW4AVzHaG/VQpbTyYlj1t2amZ1joaPJiKFSxf68sONjuDJSs4iqSBbPVGIKUXknyXToTvq5oh5PAAjYkkvtHAkvgE5dkeP8JN31egisKh3Sci90orqe8wggM/WOr1c6h2XBWFJrwWCfxp/oLD36nlLUsVhSZ4HJnhGwXM8M1wWsMjVRSG8GPv4C7XT+Yt2OX6qch9/EEVwfq62qcJt7qLFf6UKkTeghd91ZCxesbd2tjYs1/ljfFgOk17Ue8uTh4d6dqhEuyk0pK2gSzox5K+SmgN+pyUsbKqnCbGELwIC65fVAUh7YiRiz1fwKBQWhNotGlV2o1zH9QwLPfcg4tFtvn+bktuDbPhGRpNMCOdeVI0T9L4nTWdT7CMbicGgpmix7dYLBaLypFf3gSt5+C6V9kAAAAASUVORK5CYII=">
+                            </i>                            
+                            <!-- <i class="fas fa-wifi"></i> -->
+                        </button>
+                        <select 
+                            name="stored Patterns"
+                            id="selection"
+                            title="Load a saved image"
+                            onchange="loadPatternChunked()">
+                            <option 
+                                selected
+                                disabled 
+                                hidden 
+                                style='display: none' 
+                                value='-1'>
+                            </option>
+                        </select>
+                        <select 
+                            id="selectionPX" 
+                            title="Set size of canvas" 
+                            onchange="redrawcanvasselector()"> 
+                            <!-- tenia on change -->
+                            <!-- <option selected disabled hidden style="font-size: 12px;" > </option> -->
+                            <option value='1'>16</option>
+                            <option selected value='2'>32</option>
+                            <option value='3'>64</option>
+                        </select> 
+                        <!-- <button class="item" id="DownloadAPK" onclick="DownloadAPK()" title="Download Bluetooth Android APK"> -->
+                            <!-- <button class="item" id="DownloadAPK" title="Download Bluetooth Android APK">                           -->
+                        <!-- <a href="/downloadAPK" download="BT_Joy.apk" class="item">                              -->
+                            <button class="item">
+                                <a href="/downloadAPK" download="BT_Joy.apk">
+                                    <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEE0lEQVR4nO2ZW6xeQxTH/+dUj8uhLtFqKYII2hO0PIiHxlNp0556QAhyEpdwHiSNBE1EiKSEF9WIJ8FLefIm1UpQxKUlrkFOQxORo6XirlqX/mRifenqnNm3b+/9nT58k0yyM7Nmrf9/9syatWakfumXfqldQCeBrgQ9CtoC+gK0E/Sn1Z3WtsVkguycQwH4CtDLoH9BVKxhzGbQ8ukAfqbNJg3V10Bn9Ar8ctCvEYB/jNBa0ErQuaC5oCOshu/zrO8h0Os2Bld/AS1rG/wy0F/O6D7QOtApXeg6FfR4Qt9oO+j/N/q8M/YlaFEDOi8CfeX0hr+7oBnEU40tBf0Iegs0r0B2Mehm0EgJvfNA2x2JraBBTVcB3QXa7wA9C5pZMGYhaI8bc0vvEB8MJGza3xKeZiNouGDsfdESndE75AdALIp8vSfxLujEnLHDoN1OfkVv0R/YlB0A74PuiUiEmT0rZ/zDTnbDtBOwtptAf7v2b0EXZowfcXI/93wZpQhY+1WgvRGJ4zN0fO3kunfVdqK+B3oJNKsOAeu7zE7cTv8NGTo2OJnb6xB4wim6PtF/Oeg5f3oWEFgdnbzXZdhd42TW1SGw0SlamejveIz9tvlmZOyBYSPqN/PnoKMz7K7y7rcOgU+doimbDvRmBGqzndbeC50N+iSSeycvfuLgSfigDoFdTtHcRP9xoBcTUWXne7d5Et//JGiowO58Jz9Zh4APm4/JkBkEPVAiqQlhwlhJu7P8hNQhsM8pGiqRnf2UAX5HFXcIOtyN3VuHgJ/VwugQdE0CfJiEhRXtDvpwpFd/YCyKJn2dBF1awe6RbuwfTe2BLJc3ZBszb/13/sR4SbsnuHE/1CEw6RTNT/SfbC7RA/0u+v4+6n8mhNwFdo91y3eiDoEPneHFif6PI3DhsFoSnQOnWThC1D5lQiLdd9g5032ibzFQx+hozh8K4cFqa0udxCHJeToi8VlY612DK0lgvTN4d6L/YrtZuKRkLDQeOYalbRMYr5pcFBC4NboPWtIaeDfDHWPf1MwH1kSJ/tut3zxYdOljmZEuUsoB0COJTTy7VfAOkA+D11Yk8JG5TQ/+lay4qpVi95k+ujyqQP6CnMPshRDn5IwdCFma1YEml5G/+ru3QH6m3d7F4J8qStBBdzr5Gxsh4LyHD4tzgzPQbe4WIrjNB4tmFHQO6HdnZ6xJAuEvbHPKt6cSnMSFQLiJOL3k3eiE0x8igMMaI2BGFkTB3UTVMDln0+9wesO15PnNoJ5qbDS6Vdhjjxqzu3wfWJ94H1jVCviIhF+rHcObQPfbI0hI5OdYZlXlheaKVsFH63triRygbH21Z29kkc++OnG1UraGeH9T6+9iFdbztaDHQG/YBt91yL8T90u/SP8B63x1ReDkzqUAAAAASUVORK5CYII=">
+                                </a>
+                        </button>
+                        <!-- </button>  -->
+                        <!-- <button class="item" id="gotoConverterPage" onclick="window.location.href='/openConverter'" title="Open WLED Pixel Art converter web page tool"> -->
+                            <button class="item" id="gotoConverterPage" onclick="window.location.href='/pixart1-1-0.html'" title="Open WLED Pixel Art converter web page tool">                            
+                            <i>
+                                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAkNJREFUOE+lUstO21AUnHNsF0V+0EXVivAXfAe7qlL7EZEcQ5cQ8nCICbDJF7Trvhas6YbyDdBu2hSk7kihscK1fU91HRKKaFf1xhrP8ejMnCH850P/+v/cC2qcqw4gsGD3Hk/G23+bvSdw7nk1K887BeCQ4AGMAiEjcGaB7gndEfhRqdRQSC9ncQikAVisAWGBFggR5QvQ7UcTNd9mLvDdC2p2rhIN2G4U/vRbneyynzhps70oAPlhNPLjZna1v4/xVmtQHU8tzQXO3CCk4nrPD8MLN+6qd8ef8erwBKvH750XK1Xy4li9/fQFrw9PAGSDg8azuwJDN6jbuep7a+GFF3ezN0en5fDq8Qfn+UqVgjhW5bePpwCKwUHj6a2ACY7zrCdCC34UjrzutjLZiQC/kh0HlyPyu9tKzM4iGPf7uG5sDEwWpYWvrh85RZYAYAIp7+XayNtqytXeLqWbjUUNcLC+fuG2mpLu7tPl5sZDAnpLk0mzFDir+BFJlkCECaKFuSBYSlA4pLWtiRjEygIyErFzyIKjreYTlbZKgaHrRlzoHotweXeAhEhIxPBTDBhQYgEYhNbybINhxY1sbSwwkbHOZrzs3VRmjmnOk6bOkrqxMHT9yCqyxNybAFMg1mWRBGYlg2eboOSFGdT+IwM3Eil6zBwXZF1xkSWkOa6qtHleceuQvC+g4pZXiaOt9jyDb24Q2qKC5XTSvrlK3ZHMW04nLdMPKtQOMzoGTzPz69YNP2vi7D11ftvQWYCzyt7jfwO10TQgL5hT6QAAAABJRU5ErkJggg==">                       
+                            </i>
+                        </button> 
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <br />
+                    <canvas id="canvas"></canvas>
+                    <br />
+                </div>
+                <div class="col-md-1">
+                    <div id="colorbar">
+                        <br />
+                        <button class="color" style="background-color: #FF0000;" onclick="changeColor('#FF0000')"></button>
+                        <button class="color" style="background-color: #00FF00;" onclick="changeColor('#00FF00')"></button>
+                        <button class="color" style="background-color: #0000FF;" onclick="changeColor('#0000FF')"></button>
+                        <button class="color" style="background-color: #FFFF55;" onclick="changeColor('#FFFF55')"></button>
+                        <button class="color" style="background-color: #AA5500;" onclick="changeColor('#AA5500')"></button>
+                        <button class="color" style="background-color: #AA00AA;" onclick="changeColor('#AA00AA')"></button>
+                        <button class="color" style="background-color: #FFFFFF;" onclick="changeColor('#FFFFFF')"></button>
+                        <button class="color" style="background-color: #000000;" onclick="changeColor('#000000')"></button>
+                        <button class="color" style="background-color: #AAAAAA;" onclick="changeColor('#AAAAAA')"></button>
+                        <button class="color" style="background-color: #55ffff;" onclick="changeColor('#55ffff')"></button>
+                        <button class="color" style="background-color: #000000;" id="pickedColor" onclick="changeColor(pickedColor)"></button>
+                        <button id="coloritem"><input type="color" id="colorpicker"><input type="color"></i></button>
+                        <button class="color" style="background-color: #000000;" id="pickedColorGuga" onclick="changeColor(last_picked_color_guga)"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
