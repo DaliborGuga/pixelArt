@@ -535,6 +535,7 @@ void setup()
   delay(300);         //Sanity delay 
   Serial.begin(115200);
   Serial.println("Hello World!");
+  print_heap(0);
   // FALLA_SD = init_spi_sd();
   // Hacer algo lindo: como avisar en la pantalla!
   // if(FALLA_SD)
@@ -571,6 +572,7 @@ void setup()
   dma_display->setBrightness8(90); //0-255
   dma_display->clearScreen();
 
+  print_heap(1);
 
 // Serial.println("MAX_FDS:"+ String(FD_SETSIZE));  //Era una buena alternativa: pero no resultó!
 // Se lo dejo al Guga del futuro
@@ -628,6 +630,7 @@ void setup()
   }
   else
   {
+    print_heap(2);
     Serial.println("Modo de control por Wifi. Conectarse a LylaArtToy y navegar a 192.168.2.1 ");
     SplashScreenWeb(0);  //ver para que era el int de entrada!
     // WiFi.mode(WIFI_STA);
@@ -642,6 +645,7 @@ void setup()
     Serial.print("AP IP address: ");
     Serial.println(LocalIP);
 
+    print_heap(3);
     //WiFi.begin(APSSID,APPSK);
     // AP y station (en red guga) siempre. mientras depuro es mejor usar la PC
     // y no tego dongle Wifi 
@@ -669,8 +673,8 @@ void setup()
         keep_trying_con = false;
       }
     }
-    
-    FALLA_SD = init_spi_sd(1);  //empiezo ambicioso con 10-server no puede iniciar
+
+    FALLA_SD = init_spi_sd(3);  //empiezo ambicioso con 10-server no puede iniciar
                                 //con 8-server failed to start
                                 //con 6-si pudo y no habia cerrado root.
                                 // con 6, cerrando root no sirve un joraca!
@@ -684,9 +688,10 @@ void setup()
                                 // vuelve a la vida!
     if(!FALLA_SD)
     {
-      File root = SD.open("/");
+      listDir(SD,"/img",0);         //para llenar el vector v una vez al menos
+/*       File root = SD.open("/");
       printDirectory(root, 0);
-      root.close();
+      root.close(); */
     }
     else
     {
@@ -694,8 +699,9 @@ void setup()
       Serial.println("No se pudo inicializar SD");
       //Avisar en el canvas!!!
     }
-
+print_heap(5);
     start_server_and_handlers();
+    print_heap(6);
     // handleRoot();
     // handleNotFound();
     // handlePlain();
@@ -721,13 +727,19 @@ void setup()
 
 // Si existe el nombre de archivo lo dibujo y devuelvo 0
 // si no existe devuelvo 1 (para que la app de BT pueda dar la vuelta)
+// arreglar para nombres!!!
 bool prepare_read_and_draw(int Index)
 {
-  if (!(SD.exists("/" + String(Index) + ".txt"))) 
+  String name_to_read;
+  name_to_read = v[Index];  //asegurarse de hacer al menos una vez el vector v para el BT
+  SD.end();
+  init_spi_sd(1);
+
+  if (!(SD.exists("/img/" + name_to_read))) 
   {      
     return(1);    //file does not exist
   }  
-  File loadPat = SD.open("/" + String(Index) + ".txt", FILE_READ);
+  File loadPat = SD.open("/img/" + name_to_read, FILE_READ);
   size_t estimated_size = loadPat.size();
   int bucle_read_file2 = 255;
   canvas_size = 16;       //default, check further to see if not
@@ -744,8 +756,8 @@ bool prepare_read_and_draw(int Index)
     canvas_size = 64;   
   }  
   loadPat.close();
-  readFile(Index, pattern);
-  showPattern(estimated_size);
+  //readFile(Index, pattern);
+  //showPattern(estimated_size);
   // loadPat.close();
   // llevar cursor a (0,0)-si cambian de tamaño y el cursor estaba fuera de los límites del nuevo
   // canvas "se pierde"
@@ -769,7 +781,7 @@ void save_16()
     Serial.println("16x16 save fired!");
     SAVE_16_FILE = false;
     long millis_enter = millis();
-    File newFile = SD.open("/" + String(file_to_save_to) + ".txt", FILE_WRITE);
+    File newFile = SD.open("/img/" + String(file_to_save_to) + ".txt", FILE_WRITE);
     for (int j= 0 ; j <= 255; j++)
     {
       newFile.print("0x" );    //manteniendo el formato del ejemplo de partida
@@ -789,7 +801,7 @@ void save_32()
     Serial.println("32x32 save fired!");
     SAVE_32_FILE = false;
     long millis_enter = millis();
-    File newFile = SD.open("/" + String(file_to_save_to) + ".txt", FILE_WRITE);
+    File newFile = SD.open("/img/" + String(file_to_save_to) + ".txt", FILE_WRITE);
     for (int j= 0 ; j <= 1023; j++)
     {
       newFile.print("0x" );    //manteniendo el formato del ejemplo de partida
@@ -812,7 +824,7 @@ void save_large()
     Serial.println("Large save fired!");
     long millis_enter = millis();
     SAVE_LARGE_FILE = false;
-    File newFile = SD.open("/" + String(file_to_save_to) + ".txt", FILE_WRITE);
+    File newFile = SD.open("/img/" + String(file_to_save_to) + ".txt", FILE_WRITE);
     for (int j= 0 ; j <= 4095; j++)
     {
       // Serial.println(large_canvas_ghost[j] , 16);
@@ -853,13 +865,12 @@ void print_deferred()
     int can_you_print=0;
     // check for fs availability!
       Serial.println("Print de canvas diferido al método web load");
-      can_you_print = readFile(file_to_print_deferred, pattern);
+      can_you_print = readFile(ruta, pattern);
       if(can_you_print != 0)
       {
         PRINT_SCREEN_DIFERIDO = false;
         extinguir_solicitud_load = 0;
         showPattern(estimated_size_for_deferred_print);
-
       }
       else
       {
@@ -867,10 +878,11 @@ void print_deferred()
         Serial.println("No pudo abrir el file, reintentar");
       }
       // con poquitos es suficiente
-      if(extinguir_solicitud_load >= 100)  //ver cuantas veces reintentar!
+      if(extinguir_solicitud_load >= 5)  //ver cuantas veces reintentar!
       {
         PRINT_SCREEN_DIFERIDO = false;
         extinguir_solicitud_load = 0;
+        Serial.println("Extingo solicitud de apertura de archivo");
       }
   }
 }
@@ -1029,7 +1041,5 @@ void loop()
     }
   }
   
-
-
   //scroll_texto();
 }

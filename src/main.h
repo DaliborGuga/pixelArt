@@ -19,6 +19,9 @@
 #include <vector>
 std::vector<String> v;
 volatile uint16_t files_found;
+String name_to_deferred;
+String name_to_load;
+String ruta;
 
 // // Display settings
 #define PANEL_RES_X 64      // Number of pixels wide of each INDIVIDUAL panel module. 

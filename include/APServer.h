@@ -12,7 +12,8 @@
 // #define ARDUINOJSON_ENABLE_STRING_VIEW 1
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
-
+ #include <string>
+ 
 // We are hosting a webserver on the NodeMCU that communicates with the client (the website you see in your browser) over http POST und GET requests.
 // These requests are handled in the "server handles" section
 AsyncWebServer server(80);        //start the webserver on port 80 (standard html port)

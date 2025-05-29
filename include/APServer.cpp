@@ -172,8 +172,17 @@ void handleGetNames()
 //  String names = getNames();
  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request){
       Serial.println("Get names from SD card (hopefully)");
-      
+      print_heap(111);
+      //secure use of fs
+      SD.end();
+      init_spi_sd(3);
+      listDir(SD,"/img",0);
+      SD.end();
+      init_spi_sd(1);
+
       request->send(SD, "/names.txt", "text/html");
+      SD.end();
+      print_heap(112);
       // const File SDfile = SD.open("/names.txt", FILE_READ);
       // if (SDfile)
       // {
@@ -230,14 +239,24 @@ void handleLoad()
     Serial.println(request->args());
     if(request->hasArg("id"))
     {
-      String id_requested = "/" + request->arg("id") + ".txt";
-      File loadPattern = SD.open("/" + request->arg("id") + ".txt", FILE_READ);
+      //int arg_int;
+      //arg_int = request->arg("id").toInt();
+      ruta = "/img/";
+      name_to_load.clear();
+      name_to_load = v[request->arg("id").toInt()]; 
+      ruta += name_to_load;
+      //name_to_load = v[request->arg("id").toInt()];
+      Serial.println(ruta.c_str());
+      //String id_requested = "/" + request->arg("id") + ".txt";
+      SD.end();
+      init_spi_sd(1);
+      File loadPattern = SD.open(ruta.c_str(), FILE_READ, false);
       if (loadPattern ) 
       {
         Serial.println("Get size of file.16 by default!");
         size_t estimated_size_canvas = loadPattern.size();
         loadPattern.close();  
-        
+        SD.end();
         Serial.println("Of size:"+String(estimated_size_canvas));
         int bucle_read_file = 255;
         canvas_size = 16;                 //default, 
@@ -257,10 +276,10 @@ void handleLoad()
         PRINT_SCREEN_DIFERIDO = true;
         // los método se me cuelgan cuando el programa crece mucho
         // los hago en el main!
-        file_to_print_deferred = request->arg("id").toInt();
+        //file_to_print_deferred = request->arg("id").toInt();
         estimated_size_for_deferred_print = estimated_size_canvas;
         //contesto
-        request->send(SD, id_requested, "text/html");
+        request->send(SD, ruta, "text/html");
       } 
       else 
       {                                                        
@@ -292,15 +311,18 @@ void handleSave()
 {
   server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request)
   {
-    
+    print_heap(15);
     //borrar esta mierda innecesaria - pongo para que falle al compilar y no olvidarme
       long millis_enter = millis(); 
       Serial.println("Save to SD card-deferred from callback");
+      name_to_deferred.clear();
+      name_to_deferred = request->arg("name");
 
       #ifdef VERBOSE_HANDLE_SAVE
       Serial.println("pt" + String(request->arg("pt")));
+      Serial.println("Name:" + name_to_deferred);
       #endif
-      File names = SD.open("/names.txt", FILE_APPEND);        //tenia FILE_WRITE          
+/*       File names = SD.open("/names.txt", FILE_APPEND);        //tenia FILE_WRITE          
       if (names) 
       {
         names.println(request->arg("name"));                            //add the newly added pattern to the names file
@@ -315,18 +337,18 @@ void handleSave()
         Serial.println("Can't open name.txt");
         #endif
       }
-      names.close();
+      names.close(); */
 
-      int i = 0; 
+/*       int i = 0; 
       while (SD.exists("/" + String(i) + ".txt")) 
       {                         //iterate over the existing files till we have a free spot
         i++;
-      }    
+      }    */ 
 // Si el canvas es de 64x64, el POST no me manda la matriz "me la acuerdo y la vuelco desde el ghost"
 // contesto antes de volcar, porque me parece que al tardar tanto, me resetea el micro porque async_rcp se chifla!
 // Igualmente; cambio: todo se escribirá en el main desde el ghost; en todos los tamaños, para usar
 // los mismos métodos para BT y para WEB! Por consistencia!
-      file_to_save_to = i;
+      //file_to_save_to = i;
       if(canvas_size == 64)
       {
         SAVE_LARGE_FILE = true; 
@@ -341,6 +363,7 @@ void handleSave()
       }
 
       request->send(200, "text/plain", "done");
+      print_heap(16);
       // File newFile = SD.open("/" + String(i) + ".txt", FILE_WRITE);         //create a new file for the new pattern
       // if(canvas_size != 64)
       // {
@@ -660,7 +683,7 @@ void handleJsonFromConverter()
     {
       int iterar_n_veces = 256;
       String pixel_str;
-      print_heap(1);
+      print_heap(200);
   //      Serial.print("Free heap: ");
   //      Serial.println(ESP.getFreeHeap());
       // Serial.print("Free heap: ");
@@ -732,7 +755,7 @@ void handleJsonFromConverter()
           #endif
         }
       }
-      print_heap(2);
+      print_heap(201);
     } //end of if ANALIZAR_JSON
       
       // Respondo siempre esta mierda para que me siga mandando chunks (si los hay)
@@ -745,9 +768,9 @@ void handleJsonFromConverter()
       ANALIZAR_JSON = false;
       if(!err)    //solo si no hubo error
       {
-        print_heap(3);
+        print_heap(300);
         showPattern(auto_size);
-        print_heap(4);
+        print_heap(400);
         // Cada vez que hagan un send to device; voy a guardar en la SD en un temp
         // lo subido; para despues retraerlo desde la SD cuando hagan click en back!
         // (redireccionando solicitudes y haciendo un poco de trampa)

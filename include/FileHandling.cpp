@@ -6,12 +6,13 @@
 // Returns 0 on success
 bool init_spi_sd(int num_files)
 {
+  print_heap(10);
   //ver como definir HSPI (si es que es necesario)
   // sd_spi = new SPIClass(VSPI);
   // sd_spi->begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-  Serial.println("SD_SPI?");
+  //Serial.println("SD_SPI?");
   sd_spi.begin(SD_SCK, SD_MISO, SD_MOSI,SD_CS);
-  Serial.println("UHM?");
+  //Serial.println("UHM?");
   delay(50);
 
 
@@ -43,6 +44,7 @@ bool init_spi_sd(int num_files)
               Serial.println("UNKNOWN");
           }
       }
+      print_heap(11);
       return(0);
   }
 }
@@ -75,13 +77,17 @@ void parsePattern(long (&colorArray)[4096])
 }
 
 // Devuelvo size of file para mis métodos
-size_t readFile(int index, long (&colorArray)[4096]) 
+//size_t readFile(int index, long (&colorArray)[4096]) 
+size_t readFile(String file_to_read, long (&colorArray)[4096]) 
 { 
-  patterns = SD.open("/"+ (String)index + ".txt");  //open the file with the given index
-  size_t sizeoffile = patterns.size();
+  size_t sizeoffile;
+  SD.end();
+  init_spi_sd(1);
+  patterns = SD.open(file_to_read);  //open the file with the given index
   if (patterns) 
   {                                   //opening successful
     Serial.println("Parse pattern");
+    sizeoffile = patterns.size();
     parsePattern(colorArray);                       //read the file and write to pattern array
     // patterns.close();
   }
@@ -96,14 +102,18 @@ size_t readFile(int index, long (&colorArray)[4096])
 }
 
 // Dir de FS, con posibilidad de subniveles
-#define VERBOSE_DIR   
+// Armo un vector v
+// y automáticamente vuelco a SD/names.txt
+//#define VERBOSE_DIR   
 void listDir(fs::FS &fs, const char *dirname, uint8_t levels) 
 {
-  files_found = 0;
-  v.clear();    //limpio vector al momento de entrar
+  //DynamicJsonDocument doc(5000);
+
   #ifdef VERBOSE_DIR
     Serial.printf("Listing directory: %s\r\n", dirname);
   #endif
+  files_found = 0;
+  v.clear();    //limpio vector al momento de entrar   
   File root = fs.open(dirname);
   if (!root) 
   {
@@ -122,6 +132,7 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
   File file = root.openNextFile();
   while (file) 
   {
+ 
     if (file.isDirectory()) 
     {
       #ifdef VERBOSE_DIR
@@ -148,6 +159,25 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
   }
   file.close();
   root.close();
+
+  File names = SD.open("/names.txt", FILE_WRITE);
+  //Serial.println("files in vector:");
+  if (names) 
+  {
+    for (int i=0;i<v.size();i++)
+    {
+      names.println(v[i].c_str());
+      Serial.printf(v[i].c_str());
+      Serial.println();
+    }
+    Serial.println("Archivo names.txt creado a partir de dir(ls) del sistema");
+  }
+  else 
+  {
+    Serial.println("No puedo abrir SD para (re)crear names.txt");
+  }
+  names.close();
+  //Serial.println("end of filesin vector");
 }
 
 // Hacer un dir, devolver contador con cantidad de files y alojar en algún array conveniente
