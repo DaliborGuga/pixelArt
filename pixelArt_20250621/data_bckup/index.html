@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAA/6uPAA7S/wD/PoUACd7/ADn/BAD/VAsA/ypKAIv/2ACstf8A/xN6ANL/qgAX/9IA/1QvAP8xygDJ/84ALcz/AP+NSQCY/4gAFv+UAP9QUADJrP8A/2iOAHT/JwAe8P8AW/8EAMj/NwD/vO8AVf+KACM+/wD/0RkArPT/AP9xUABYuv8A/9t1AP+izwD/qWcAcqL/AP/HrgAXbv8APPb/AP83EAD/WqQA/3AqAMzu/wBd/8kAdL3/ABmJ/wD/R+kA1Dn/ACv/9wD/DCkA/6+4AP+hEgCr/0IAQ1//ALr/iQAwif8ABhD/AA7F/wB+I/8ALKH/ACj/ewD/Mi8A/0ptADf/YAD/jW8AK/8iAP+8LQD/xYYA/xjcAIT5/wCN7f8A/+PNAJ7/wAD0V/8AD/v/AM3/DQBqdP8A/0i4AID/aAD/6jAA/xqtAP+mPQD/6foA/yv6AP/0jAC0Gv8Aref/ACgx/wCf//8A//7oALrY/wDY/4EAnUT/AEjF/wD/FRAA/4ogAMvV/wCj/2gARSj/AE7g/wAu/7sA/9ZGABj/NgCCnv8AZsv/AOkO/wDqzP8AcP+xABCd/wA5Z/8Abdr/AElS/wD/8F4A4/8pAG3m/wBl8v8AlP8iAP92xQD/b3IA6PP/AP/BWQCF0f8A3v9WAB6v/wAM/1IAZkn/AHP/8ABp/0cA//8XAP8umgCgvP8ARYj/ALH/GQCO4P8A6f/KACi+/wCA/5cAIwb/AFaF/wCg1/8A/5CWAEaj/wDdg/8APbX/AGN//wDm//cAi/9HAC7Z/wD/36EADU7/ACjl/wBh/2wAGkj/AF6j/wCHav8A+f9FAE7T/wD0/3IARP/hAEfr/wD+of8AQf9BAIqU/wDv/58ARP+jAFH/JgAqbP8A/3P0AMz7/wD/ztsA/yFkAMH/YgD/juIAV/3/AL5k/wD/YNcAuP/oAAq3/wCni/8A//m6AK//qgD/hrAAjL7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABilgMwAAAAAAAAAAAAA1YSsNPwesCgAAAAAAAAAeRFMRIBRAA4NSAAAAAACCUWd6JEJ4FipPDkYAAABNc51yIkUBjrd3sTBVawAAhhp8n1aWJjQjrqlLMVcAAHY2rV2ltUmrG6KQsF48ABkXlGM4C4hbVGwVtJx/ZIsFp4FQErYPk3liCaROcVk6AEOjmYpKsqosXIRpkjcdAABoQRxtCFofWI24JYxvmgAAfj6mLYBHSId7LpuFqJcAAAATZqCvdXRwaiGPOScAAAAAAAwyKKFlnl+RPS8AAAAAAAAATBiYlRCJfW4AAAAAAAAAAAAABAI7swAAAAAAAPw/AADwDwAA4AcAAMADAACAAQAAgAEAAIABAAAAAAAAAAAAAIABAACAAQAAgAEAAMADAADgBwAA8A8AAPw/AAA=">
+    <title>Lylart-Matrix</title>
+
+    <style>
+    * {
+    box-sizing: border-box;
+    }      
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #1e1e1e;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #toolbar {
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        background-color: #504c4c;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        gap: 1px; /* Añade espacio horizontal (y vertical si flex-direction fuera column) entre los elementos */
+        border-bottom: 1px solid #3a3838;
+        cursor: pointer;
+    }
+
+    #miniatura {
+        flex: 0 0 auto;
+        height: auto;
+        display: block;        
+        border: 1px solid #ccc;
+        background-color: #504c4c;
+    }
+ 
+    #canvas-container {
+      flex: 1 1 auto;
+      overflow: auto;
+      background-color:  #504c4c;
+      border: 1px solid #464141;
+      position: relative;
+    }
+
+    #canvas {
+        display: block;
+        background-color: black;
+        transform-origin: top left;
+        cursor: crosshair;
+    }
+
+    button.active {
+        background-color: #4e4b4b;
+    }
+
+    #toolbar .item {
+        background: #545455;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+        font-family: Arial;
+        width: 60px;
+        height: 56px;
+        color: #EDF607;   
+    }
+
+    #toolbar .item:hover {
+        border-color: #888;
+    }
+
+    #toolbar .item.active {
+        border-color: #007bff;
+        box-shadow: 0 0 5px #007bff;
+    }
+
+    #toolbar select.item {
+        height: 40px;
+        font-size: 16px;
+        border-radius: 8px;
+        padding: 4px 8px;
+    }
+    #toolbar .color{
+        float: left;
+        line-height: 32px;
+        padding: 15px;
+        cursor: pointer;
+        height: 56px;
+        width: 56px;
+        background-color: red;
+        border-radius: 8px;
+    }     
+    #toolbar .toolbar-select-uniform {
+        background: #545455;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+        font-family: Arial;
+        color: #edf607;
+        font-size: 16px; /* Tamaño de fuente para el texto del select */
+        width: 60px;
+        height: 56px;
+        padding: 0 8px; /* Padding horizontal para el texto, vertical se maneja por altura/line-height o flex */
+        box-sizing: border-box;
+        text-align: left; /* Alineación del texto dentro del select */
+        /* Considerar 'appearance: none;' para mayor control si se rediseña la flecha */
+      }
+      #toolbar .toolbar-select-uniform:hover {
+        border-color: #888;
+      }       
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="toolbar">
+        <button class="item active" id="pencil" onclick="changeTool('0')" title="Pencil">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAADr0lEQVR4nN2ay48TRxCHm6y7auACyi2CSCg3xBsCEoSNOAQECCRQFF4HhCIhkiCeEiGJAuKCwo0DIE4IAVceEjf+Aq45QC4cVtxg3TVe8FQNhEejtle7s/bYnrW3x579SX2wPdLU5+qurqpupQZUYVWvMAynSOAsRbDdWlVSRdSIVQEx3CZBO2Uw/kdVvUwVSdYqbQQfNcFIfRjBSplL61QRZK2aQ4L3W8HQJBSNRnqNKoLqa6Y9EA26p0ajeV8lP5PAmYxQNHCeKnPpW2eYYbyc/N4wnC6cp0IJvifGNxPGFRkqrOoVxCgpofli8jkS+D3r9OtrSLdWfUEMN1MNbIY6lwWKGJ9Zq4byBil1AxUK/JHJUzFuzQ3GvIUlxPA8lGBTN1BG4M/OUHAmFxiq6qUk8HLc0GoPUH+1BYrwSB4wy0jgVYOhvUD9nTrdGD+MxfiNV5iwqpcbgdEWhvYCdT7luSt+YSK90giUO0SmXqAuJH5/4LW8qER6VUeYSUMjt8kmoOYYgRstptXlppDO8NhahT5hVhsBkwlmcmMcM1xa342nrGfPTBsmCZVMYabjKZ+JZtgNTAIqzLqmQgmGPZYAek0tn+oBJrmmyjFubuUpw/jJ6wZaZr12xmA6QBnG9ybGw95gSIINbu7PKEybkF6J9GqfMBuJ8bUXmBae8ib3zyWLM89QbxrL9BkVSfBdXjCG8ZNhODkrPDMOc8InzLBbqPnB4HHfDY3cYMqMx2YNTMj4mzcYE+OW1O5MQWG25gzzqz8Yhh+JMc4J5qPXdCYM1fwc18wHI8Eh5VMket+sgXFqPD1zL/YBE4o+qHzLWjXU1KWJYLtheDGDMO9J9H6Vh0iCDVNeLvh0ytmnBF+7+oci2EEMt7qE2ZcLjBMxXmow4B/VQibGnwdymiVlBP9NGpEssBpFAj9NB4ZEH1B5yvDcRfV6fWK6UbsWkVtbGWH+Nwx7coVxIsZfphoCd1WnUqIzzLsyw27VD5mm+wHtp4jhuQvbNUccTMiwS/Xv9gZyMhqNjakvs+R7afuUYXwbRrBT9UvUsB7cQWwlxsWNz7l2Ur2h6Lr/8MTlYWkwLqyrfooErjUbBiMOqlJRC0j03vq+M35o1SYAUITbVL9lGEZSDRSs1DfDzNHMX0NjeidsXaYxLk1iuOM86DypBkFhxhPmicH4zHX/TYw/DOQdNhJ82AGAayGd8ajbfNWgiwSupgUEI3DdRT8X0lWRVKlFsVqUu1c74ivarcEGfQaOdcIxOr1ZdwAAAABJRU5ErkJggg==">
+        </button>
+            <input class="color" type="color" id="colorPicker" value="#FF0000" title="Color picker-actual color" onchange="color = this.value">
+        <button class="item" id="eraser" onclick="changeTool('1')" title="Eraser">
+            <img  width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC5ElEQVR4nN3aS4vTUBQH8CvaczKiH0FdCQqOLgRRF75f4EZFv4BuRJiN4sqNuHKhLgRxp+DOtSAKguIXUAQfGxcOjDqTc6LSnpP6wMgt0zHtpG3S5jZJ/5BVe8P99dx7c5PUmALD6u1iwasscJ8U7pLgDKu3zlQtgXobSOAFK0bdBwn+JMGbUWRqpgoJ6rVpVphPwnQcAs/mIrPalDnUhM2s8GUgZqla8HI+MmvMJGBKjaIhMVxG1KgYLhPKLgCksDAqhv8vFE+jyKycDIwuVkrhytgxXK9tcYHhFgi/+5FZOzaM34RNecyZ/gecmSAM2rn0oNLDjJeveB8nozK6BPo0MRh2CbLDrHujSYJ/KgnyEypDigErXKwcyO+B8aW2PVBvb6VAfh9M6/MQ91UG5A/ALIL2VwLkJ2JgIajXtnZ8L8QDpQf5KTGVAHHS0twDswg66BrEgh+Gwiw0YWMPzHSvNhTiIecVUnycGRNFBljwXRbM2ECCM5lBLHi+q8z1oFHbNqgdhXjYLQg+D3UrzgLP4ycKBC+kaUchHnFYmV/2OpcZ0wIpfI2dqDkbmalU7Rp41BWGBE4OhWl1TDCMDbf3adu5WOVoVEw3iBRfpW0XRWYFKdwpFWYUUBvFCrdLgxkVlAcqV0weoFFQuWPyAg2DcoLJE5QF5QyTNygNyinGBSi2pD8ZO8YViAROkeDvsWNcgHyBE7bzhWDyBtn9nd0PFoZJAL02Q6a1WY3vC4vA2Nj3MEudEPxhJ7TJmNbzBUEtHGNDim86OhLiWZMhgXp7WLBRCowNCd7oWF4Fxf7iJkVYvd32Drc0GJtAvfXdYz8NimTVDjtES4Vph0I8t+yq3gdln6CS4rdSYtphhctJqKABxzsrM7WTFLnUmH4oEvxLio9Y8BoJPixsBzBssrz3KT2mHVa4ZCszANOsBCa+wWSFuUSQ4Fs7l0zVMhuZKRI4zYq3WOAeCV7nBh4r7H84sfwDOfjWAxUXOrgAAAAASUVORK5CYII=">
+        </button>
+        <button class="item" id="fill" onclick="changeTool('2')" title="Fill color">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAACO0lEQVR4nO3azYrUQBAH8BKcqt2L+AB6VG8eFPQt/ADFi+8heNF30BdYb37rEwmKwk5Vz6wfVQzobpbenfFjJuPms7uTyR/6kpAmP6pJujsBGDJkyJAhGxxneFcMxRl+ZsVb0OdkGZwSQ3ZGmW+i9NPZ6B70Oc5wdwHeCLQYPvwb3Gs06+iqGE2WwXP0r4lt3YdNwLq+oUW3r4vRXg7y5fFw7tHw5jWVFcNH/rwo3slBd7PSfAJ2kV6guSC2F2guie00mitiO4nmmthOobkhbCfQ3DA2aTS3hE0SzS1jk0JzIGwSaA6MjYrmSNgoaI6MDYrmGV4So+nKEk/pMUSIX0K2urR0Rm9SwQZBO6VvKWFbR7tlcOKtNtoZvY6NCIoez/Bi7kOrA2hWvNn0ZlyWchPFj5XA3UXjF6gTSRx9fG/4QBQ/+Oqy4g2om/GP0RUxcilifUFqA7uAbhWbGjoINhV0UGxsdBRsLHRUbGh0Eawo3g7yH8m4ZXQhbAZnnOEnP+mYTuFsZ9FScBg7w6d/rsMnECLS8IysKHbyfXRZlPZ/X6e0749BiDRV6TIPKGf0PqePdxAqdStdBit6+pooHaz0oXTgz0GoVK102VePU3y2tj/FHQiZsugq79nlH9/+bbgLoVN0eFedVPxv702M9iBGTkLXmUE5o7dr+1V6DrEyR6/skfljdaaL8w8GeV9HRHT7HMSM3xg82g1V+nrUjF6NZ3ihbr/Ots47oxeLfn1lo2OHDBkyZAiUzyGO25/RojuT8AAAAABJRU5ErkJggg==">
+        </button>
+        <button class="item" id="colorpickertool" onclick="changeTool('3')" title="Select Color">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC50lEQVR4nO2b3U4TURCAJ8jO1OCt+gSiRq40JvoUXABy4U9CvPYZRN/DaLww/ryA0TfAO30GBLtniFJn2kRwzUCxp0vbpZS2u3v2S/aiCW3PNzNnOltOASoqKspAkkBkF4RCksAMa3SPlT6w4jYrJU7oLytusdJ7Vlyxv4EyEkt0yyl9M+lBl1P6Wv8d3YQy4QSXWEiz5P9fQhILLkIZYMUVJ/TnxPKdIDRjmb0NQcprZzsUtiewRqujyHcuXIHQMs9+FQi9gzAzT0cVsAUhZp47FbBfiGGJxyDvBWAWwip78rfAdwgx89ypgLeQB7gR3Zhs5o8CgMvTMfZgoXUntLejtQeTynxuBiEWWvfK8SAIk5C3ewe7gZqufCNaSIva4/GXvb0HLkEecILLY892t/zejkb3IU+4CQUhl/ITa3iVfJTHzEer426Ch68VrUIRyt61y/SsekKhyt6lFjtqEAotP2oQSiF/2iCUSn7YIORW3vUQGHaxWUEotXxWEIKQHzQxpm+lg5LnPAaB+0x4p53ITjoxHjxuRAtQ9sy7PhOjU3wKochD6j2nLs8TKvter9frC9XSZz43xIKL08r81Km3cN4p/TyrTJ11JY0dFvwcZOYN18LrhyewvAU3aQ1CkDdY6FnXNCb4CUKRN1hpw190rLWHEIr87u6Fi/Z/dW/R+9uNuculbng+TmuPUjcjGxCKvOGE3nTvf3oOZS/7wVPa+TsQRubxuICiSxI4l/ncJq0VOvNxC6+lz+NmCWw15i7Zp0N6YCqcvMGCr7MErBJYa3etJ7DSF/+TotDyBiv+GDT1HTQ3RdfvKyuvYf4q3EntJIEZf+y1xuXv+5McZrLnO8WPdgMFRYTbv8DwhJ7YAUPXpMf95NtbYMPGZushUGRY8FUfwWP72+YEa37WBKEsxC28ar+0yCjz4jW3YYgFF/sGQUhyc/JqnNRbOM+CL1lx81AeN1nwRb2FV6a9toqKiooKGJ1/oToTbkVqYgwAAAAASUVORK5CYII=">
+        </button>  
+        <button class="item" id="fit" onclick="fitToScreen()" title="Fit to screen">
+            <img width="35px" height="35px" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iI2VkZjYwNyIgZD0iTTEyOCAzMmwzMiAwYzE3LjcgMCAzMiAxNC4zIDMyIDMybDAgMzJMOTYgOTZsMC0zMmMwLTE3LjcgMTQuMy0zMiAzMi0zMnptNjQgOTZsMCAzMjBjMCAxNy43LTE0LjMgMzItMzIgMzJMMzIgNDgwYy0xNy43IDAtMzItMTQuMy0zMi0zMmwwLTU5LjFjMC0zNC42IDkuNC02OC42IDI3LjItOTguM0M0MC45IDI2Ny44IDQ5LjcgMjQyLjQgNTMgMjE2TDYwLjUgMTU2YzItMTYgMTUuNi0yOCAzMS44LTI4bDk5LjggMHptMjI3LjggMGMxNi4xIDAgMjkuOCAxMiAzMS44IDI4TDQ1OSAyMTZjMy4zIDI2LjQgMTIuMSA1MS44IDI1LjggNzQuNmMxNy44IDI5LjcgMjcuMiA2My43IDI3LjIgOTguM2wwIDU5LjFjMCAxNy43LTE0LjMgMzItMzIgMzJsLTEyOCAwYy0xNy43IDAtMzItMTQuMy0zMi0zMmwwLTMyMCA5OS44IDB6TTMyMCA2NGMwLTE3LjcgMTQuMy0zMiAzMi0zMmwzMiAwYzE3LjcgMCAzMiAxNC4zIDMyIDMybDAgMzItOTYgMCAwLTMyem0tMzIgNjRsMCAxNjAtNjQgMCAwLTE2MCA2NCAweiIvPjwvc3ZnPg==">
+        </button>    
+        <button class="item" id="delete" onclick="clearCanvas()" title="Clear canvas">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFEUlEQVR4nO1aa4gcRRAuzU3X7pkEHwg+UXyA8fkj4qkovlA0gmJ8JYIQNSo+ECMmgmIQBSN6Yvyb/Aj+EKNwEQJGMP5QiQEV9IcGHyCegSQk07O3uZvqWTBJS+3u7M3Odd1pbvd6N8wHBUd1T21/31R3V/ccQIECBQoUKFCgQBexPx48TRO+FRHuighNZNA6jdsId2nCdfwMHAvQpJZGhBMiaVmMcU3qHuhnRLFaogkP/W/yTas/G+Pt0I/YZ+GEyKh9R0t+0tQejgX9hijGlbMn38yEBB+FfoMm/KhjAhB+CP0GTepr9+KmNoUULHYZt7kFUF9Bv0GT2inM6RekZ7hNEGAn9Ar2WBjUhO9qUqOdSvHZTxE1qgmHeWxdJW8tHKcNbvNNWBTC4GddFSAypWt9k5zZStd0T4AYH/dPcAaLcWXXBAgTvMk7wRksTPDGrglgLRyvSX3jm6RkvFtYC/Ogmxgfn3+qJtwcESa+CbeMMOHCi8cGcwVrIdAGt7oHpD6oJnheJ41jOt+6wa3WwgD4gDZqoyDAppxY81wHGmsB2fJ+7ptPZbFKNGoj+IImHBbScqTVp6YW8alQE/6jST2X+iuxujMipLrFakm2GmwcodXesKYumvTjiHve4zD4gjZqrZAB21t9CN/JvK2wRYjU9kz/LzIxdYbc287+7RmwFnxBk1olZMB3rYEbXJ8hdJiryfxZIa3165Um4eFMnPcycb4XVv7nPdEH0Ak+JqzKv7b6EK7LtqVz3iXAXxZKuThvpnEiwt967q5Ak7rPnQFqrzRNxsbgREmAahVOyqX3q2kc6XZJk7rXZwbcJmRAnBn46mzbgXjwdEmAkMpn5IR8sRWHF0t3BtzqiT6ApvLVUnGS7s2a8Nmsn/d0SYBqgudn+4aEz7CfY0m/o6k85E+AmrpYGhins2ud4GckAaKJ4BLX/K5W4WRRgJpa5E8AKp8pDaxiSudwn4oJHmp/q8FiSYCQBq5sjxMsZ/9YgudKv8PTxpsAoYUFogATweVNoktzwlwnCVAxpetzC1z9w0glDq6Qfme/hfneBLBT9+0pRKNY3eFatFwCTFlUmx9F8sK46gpv0AarzrfTLG/5fN6esuouSYCQ1N05EW9olc0uAQyOeSXP0KR2u9MzWNZoLw/l/A+Ki6AJlrW/4YGrmv7l7gxQf4NvaIO/OAUgfILbeS3ITYEV00yBR3LryGXsjwifFDLgZ8/0gYl8684AtZrbD9TUhW2kCJ8SF0HCp9sWuAQvYH9k1BohA3Z4pg9c6n4uZMDr9XYqn5Ub9Cp5CrR/GOFttu4nfEPIgG2e6QNXeh8LW9R6bj94cMEp7YNWL4tTwKhXsn25AGJ/ZPB9YRfY7Jk+8KA3THcrtNtCWRMeyWTGa/XnMper/Df7uC1D7gg/O8Nt0AbP9GG6W6Etk33UjpRUem0dGfVSZr1Yw74wwVtSsVJRGn1xS8/dBv2HW6EvW30sLOS6Pn9wYTHSvb7Vl8pD9b4WFqY+jtVzt0Ep+EZGyIAfoEPgWD13G5RCKlL4P77Sk99sUD8hit8gGsWWV1RyhU5ujh5qfLpWfx6ljU77T1YTwaW++QMfRiLCP8RBdssIf4degU5wxVwLEJrSw9ArsJwFBj+dQwFGvB+D8+CiJTL4SbfJc/WXFkg9B1vPhOABbfCnjhM3+GNk1P3QL4hM6Wyu7HjQs7EwwZs5lm8+BQoUKFCgQIECBeAYw7/Kjqm8dy9MpgAAAABJRU5ErkJggg==">
+        <button class="item" onclick="promptAndSave()" title="Save image as">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABN0lEQVR4nO3WsU7DMBAGYC+9c8TOAAgQa3kBEDwA4i14EkZ2JngOXoAufQQmVCGQEMJnQOldxiKnhJYIimPHZSC/5CXy5cvFpyhKdfl3sWM4JoEHEpxUa9H++p7POsbTRjAJ3M+jwXBTnGpoFCw4MYxnfwJ745QA/u0eQbBPfTBsRR/4oFb0YaswtbBUB9fTvWojeGU4W1eeeeZszdVED5fhbEM1zGO+skoC58RYBMMqIiR6nxjfksPEeGMYro3AhRW99YHvOTwpbBgGsyOC0TyuksICl1/nA+5eC9zxKo6BrehNw3AbhFPkcAXj9M2vj9cqp3d6li8FbrszruEjd/1neAxHaXB4orzXV8vIDAeH7paN5b3+ws7bxKtOHV4+hMAwOVzF4VMU3fffLg0uOxcYOtQUePIOXUa3JhfGFdsAAAAASUVORK5CYII=">
+        </button>
+        <select class="toolbar-select-uniform" name="stored Patterns" id="selection" title="Load a saved image" onchange="loadPatternChunked()">
+            <option 
+                selected
+                disabled 
+                hidden 
+                style='display: none' 
+                value='-1'>
+            </option>
+        </select>
+        <select class="toolbar-select-uniform" id="selectionZoom" title="Zoom" onchange="setZoom(value)" class="item">
+            <option value="1" selected>x1</option>
+            <option value="2">x2</option>
+            <option value="5">x5</option>
+            <option value="10">x10</option>
+        </select>
+        <select class="toolbar-select-uniform" id="canvasSize" onchange="changeCanvasSize(this.value)" title="Pixels quantity">
+            <option value="16">16</option>
+            <option value="32" selected>32</option>
+            <option value="64">64</option>
+        </select>      
+        <button class="item" id="live" onclick="changeMode()" title="Play stored images">
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAADL0lEQVR4nO2av2/TUBDHHxK5SyohIVigVVeQkBADjLDTSvyQOrHwY4aBAQgbLOVPgBEJNqjESJlgYgMWFhiK1LRA6/fcFnzXwFCji0GJTYqd+BdO30c6KYp8fvf1Oz8/n08pi8Vi6YNDcF4zrBqGry7BmQTHnzUMK5rBcQjOqSrh+2qXYfhiGH0xTbAY52MYWn+ONwyf5RyqKjhtONwNHn2Z6TifIBu6PnIOVRX0Jl6OCH4e68MwH/apX1JVQTM86A3eEN6N85FjIhfpvqoKmvFtSLCHp+N8jAdTIR/GN8VE2wfD9UnDOGcIv0WCKt+CmJ5lds8brk9qRlO6sBjTjK7EmoFgnCtbzAD2JL1g+g/TePv03shihv1SU5Xwh2G45VBjXMwwNIP/+h9fecGGofl3TNAcWcGr3tjBaEwr3tiBkRXsUGM8GpOmxsSOSmmX4fbICtbBotXcQYsWDmRW8KAMdIUJXkrlQlZWMfmtCV6N5gwTzvarUnSqH4SzIyVYM9yJP8/2m4VKCdYJxBYpOl/BFF/JiKtshC4ewSdNcN39Xju6tqb2rrbhkOHaBVkbyhdMg4uNFU14bzsfvYlXDKFXmmCV9rx9RMtL/L98dBuOaMb3lRTcv3CH71QMy74aMwQPKylYcAivaoIFTfDa9WrHVEIqK3hYrGC2MzwceW8UsrYhZXYpW4AVzHaG/VQpbTyYlj1t2amZ1joaPJiKFSxf68sONjuDJSs4iqSBbPVGIKUXknyXToTvq5oh5PAAjYkkvtHAkvgE5dkeP8JN31egisKh3Sci90orqe8wggM/WOr1c6h2XBWFJrwWCfxp/oLD36nlLUsVhSZ4HJnhGwXM8M1wWsMjVRSG8GPv4C7XT+Yt2OX6qch9/EEVwfq62qcJt7qLFf6UKkTeghd91ZCxesbd2tjYs1/ljfFgOk17Ue8uTh4d6dqhEuyk0pK2gSzox5K+SmgN+pyUsbKqnCbGELwIC65fVAUh7YiRiz1fwKBQWhNotGlV2o1zH9QwLPfcg4tFtvn+bktuDbPhGRpNMCOdeVI0T9L4nTWdT7CMbicGgpmix7dYLBaLypFf3gSt5+C6V9kAAAAASUVORK5CYII=">
+        </button>    
+
+        <button class="item">
+            <a href="/downloadAPK" download="BT_Joy.apk">
+                <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEE0lEQVR4nO2ZW6xeQxTH/+dUj8uhLtFqKYII2hO0PIiHxlNp0556QAhyEpdwHiSNBE1EiKSEF9WIJ8FLefIm1UpQxKUlrkFOQxORo6XirlqX/mRifenqnNm3b+/9nT58k0yyM7Nmrf9/9syatWakfumXfqldQCeBrgQ9CtoC+gK0E/Sn1Z3WtsVkguycQwH4CtDLoH9BVKxhzGbQ8ukAfqbNJg3V10Bn9Ar8ctCvEYB/jNBa0ErQuaC5oCOshu/zrO8h0Os2Bld/AS1rG/wy0F/O6D7QOtApXeg6FfR4Qt9oO+j/N/q8M/YlaFEDOi8CfeX0hr+7oBnEU40tBf0Iegs0r0B2Mehm0EgJvfNA2x2JraBBTVcB3QXa7wA9C5pZMGYhaI8bc0vvEB8MJGza3xKeZiNouGDsfdESndE75AdALIp8vSfxLujEnLHDoN1OfkVv0R/YlB0A74PuiUiEmT0rZ/zDTnbDtBOwtptAf7v2b0EXZowfcXI/93wZpQhY+1WgvRGJ4zN0fO3kunfVdqK+B3oJNKsOAeu7zE7cTv8NGTo2OJnb6xB4wim6PtF/Oeg5f3oWEFgdnbzXZdhd42TW1SGw0SlamejveIz9tvlmZOyBYSPqN/PnoKMz7K7y7rcOgU+doimbDvRmBGqzndbeC50N+iSSeycvfuLgSfigDoFdTtHcRP9xoBcTUWXne7d5Et//JGiowO58Jz9Zh4APm4/JkBkEPVAiqQlhwlhJu7P8hNQhsM8pGiqRnf2UAX5HFXcIOtyN3VuHgJ/VwugQdE0CfJiEhRXtDvpwpFd/YCyKJn2dBF1awe6RbuwfTe2BLJc3ZBszb/13/sR4SbsnuHE/1CEw6RTNT/SfbC7RA/0u+v4+6n8mhNwFdo91y3eiDoEPneHFif6PI3DhsFoSnQOnWThC1D5lQiLdd9g5032ibzFQx+hozh8K4cFqa0udxCHJeToi8VlY612DK0lgvTN4d6L/YrtZuKRkLDQeOYalbRMYr5pcFBC4NboPWtIaeDfDHWPf1MwH1kSJ/tut3zxYdOljmZEuUsoB0COJTTy7VfAOkA+D11Yk8JG5TQ/+lay4qpVi95k+ujyqQP6CnMPshRDn5IwdCFma1YEml5G/+ru3QH6m3d7F4J8qStBBdzr5Gxsh4LyHD4tzgzPQbe4WIrjNB4tmFHQO6HdnZ6xJAuEvbHPKt6cSnMSFQLiJOL3k3eiE0x8igMMaI2BGFkTB3UTVMDln0+9wesO15PnNoJ5qbDS6Vdhjjxqzu3wfWJ94H1jVCviIhF+rHcObQPfbI0hI5OdYZlXlheaKVsFH63triRygbH21Z29kkc++OnG1UraGeH9T6+9iFdbztaDHQG/YBt91yL8T90u/SP8B63x1ReDkzqUAAAAASUVORK5CYII=">
+            </a>
+        </button>
+         <button class="item" id="gotoConverterPage" onclick="window.location.href='/pixart1-1-0.html'" title="Open WLED Pixel Art converter web page tool" style='margin-right:0px'>                            
+            <img width="35px" height="35px" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAkNJREFUOE+lUstO21AUnHNsF0V+0EXVivAXfAe7qlL7EZEcQ5cQ8nCICbDJF7Trvhas6YbyDdBu2hSk7kihscK1fU91HRKKaFf1xhrP8ejMnCH850P/+v/cC2qcqw4gsGD3Hk/G23+bvSdw7nk1K887BeCQ4AGMAiEjcGaB7gndEfhRqdRQSC9ncQikAVisAWGBFggR5QvQ7UcTNd9mLvDdC2p2rhIN2G4U/vRbneyynzhps70oAPlhNPLjZna1v4/xVmtQHU8tzQXO3CCk4nrPD8MLN+6qd8ef8erwBKvH750XK1Xy4li9/fQFrw9PAGSDg8azuwJDN6jbuep7a+GFF3ezN0en5fDq8Qfn+UqVgjhW5bePpwCKwUHj6a2ACY7zrCdCC34UjrzutjLZiQC/kh0HlyPyu9tKzM4iGPf7uG5sDEwWpYWvrh85RZYAYAIp7+XayNtqytXeLqWbjUUNcLC+fuG2mpLu7tPl5sZDAnpLk0mzFDir+BFJlkCECaKFuSBYSlA4pLWtiRjEygIyErFzyIKjreYTlbZKgaHrRlzoHotweXeAhEhIxPBTDBhQYgEYhNbybINhxY1sbSwwkbHOZrzs3VRmjmnOk6bOkrqxMHT9yCqyxNybAFMg1mWRBGYlg2eboOSFGdT+IwM3Eil6zBwXZF1xkSWkOa6qtHleceuQvC+g4pZXiaOt9jyDb24Q2qKC5XTSvrlK3ZHMW04nLdMPKtQOMzoGTzPz69YNP2vi7D11ftvQWYCzyt7jfwO10TQgL5hT6QAAAABJRU5ErkJggg==">                       
+        </button>         
+
+    </div>
+        <div id="miniatura">
+            <canvas id="miniCanvas" width="128" height="128" style="border:1px solid #999;"></canvas>
+        </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+</div>
+
+<script>
+    let color = '#FF0000';
+    let tool = 'pen';
+    let isDrawing = false;
+    var names;                              //stores the names of the patterns
+    let live = true;    
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const sizeSelect = document.getElementById("canvasSize");
+
+    let logicalSize = parseInt(sizeSelect.value);
+    let zoom = 1;
+    let pixelZoom = document.getElementById('selectionZoom').value;
+    const picker_ext = document.getElementById('colorPicker');
+    const container = document.getElementById('canvas-container'); // contenedor con scroll
+
+    // Inicializa el canvas lógico
+    let currentPattern =[];
+
+
+    function initPixelData(size) {
+        currentPattern = Array.from({ length: size }, () => Array(size).fill("#000000"));
+    }    
+
+    //add the event handlers when the webpage is fully loaded
+    document.addEventListener("DOMContentLoaded", function(event) {
+        console.log("DOM fully loaded and parsed");
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            handleMouseDraw(e);
+        });
+
+
+// Ver si puedo o no touchmove en dispositivos moviles
+//        canvas.addEventListener('touchmove', (e) => {
+        //ver si no requiere e.preventDefault()!!!
+//        e.preventDefault();
+//            isDrawing = true;   //ver si isdrawing no debe ser colocado dentro del draw efectivo!
+                                //dependiento de la herramienta seleccionada
+//            handleMouseDraw(e);
+//        });    
+
+
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) handleMouseDraw(e);
+        });
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+        canvas.addEventListener("mouseout", function(e){                    //executes when mouse leaves canvas element
+            isDrawing = false;
+        });
+        picker_ext.addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.getElementById('colorPicker').style.backgroundColor = color;
+        });
+        container.addEventListener('scroll', function () {
+           // console.log('Scrolled to:', container.scrollLeft, container.scrollTop);
+            drawMiniMap(); // Or update viewport rectangle on minimap
+        });
+
+        window.addEventListener("resize", resizeCanvas);
+        initPixelData(logicalSize);
+        resizeCanvas();
+
+        initialise();
+
+    });
+
+    // Mandar a leer los files y acomodar en el botón de load. El canvas ya está dibujado y todo eso
+    function initialise()
+    {
+        console.log("Function initialise");
+        getNames(); //comento mientras pruebo huevadas!
+    }
+
+    function handleMouseDraw(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / zoom);
+        const y = Math.floor((e.clientY - rect.top) / zoom);
+
+        //console.log("handleMouseDraw");
+        // ver si solo hacer cosillas cuando isDrawing es igual a true o hacer siempre todo
+
+        if (tool === 'pen') {
+            draw(x, y, color, true);
+        } else if (tool === 'eraser') {
+            draw(x, y, '#000000', true);
+        } else if (tool === 'picker') {
+            const picked = currentPattern[y][x];
+            color = picked;
+            document.getElementById('colorPicker').value = picked;
+            document.getElementById('colorPicker').style.backgroundColor = picked;
+            changeTool('0');    //change to pencil automatically?
+        } else if (tool === 'fill') {
+            fill(x, y, currentPattern[y][x], color);
+            changeTool('0');    //change to pencil automatically?
+        }
+        drawMiniMap();
+    }
+
+    function draw(x, y, drawColor, post) 
+    {
+        //console.log("function draw");
+        // ver si chequear limites de x e y que estén contenidos dentro del canvas como en colorfill
+        if ( x < 0 || y < 0 || x >= logicalSize || y >= logicalSize) 
+        {
+            //console.log("outside canvas!");
+            return;
+        }
+        currentPattern[y][x] = drawColor;
+        
+        // Debugging here!
+        // Le aviso al canvas físico: ver si implementar vía Websocket!!!
+        var index = (y*logicalSize+x);
+        if(post && live){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "live", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            xhr.send("i="+index+"&c="+drawColor.slice(1));
+        }
+        /// end of debbugging here!
+        drawCanvas(); 
+    }
+
+    function drawtofill(x, y, drawcolor)
+    {
+        currentPattern[y][x] = drawcolor;
+    } 
+
+    //cuidado: el console log hace que sea miserablemente largo 
+    function floodAlgorithm(x, y, referenceColor, fillcolor) {
+        //console.log("Flood algorithm. reference:"+referenceColor+" color:"+fillcolor ); 
+        if ( x < 0 || y < 0 || x >= logicalSize || y >= logicalSize) return;
+        if(currentPattern[y][x] == referenceColor){
+            drawtofill(x, y, fillcolor);     //NO dibuja realmente nada
+            floodAlgorithm(x + 1, y, referenceColor,fillcolor);
+            floodAlgorithm(x - 1, y, referenceColor,fillcolor);
+            floodAlgorithm(x , y + 1, referenceColor,fillcolor);
+            floodAlgorithm(x , y - 1, referenceColor,fillcolor);
+        }
+    }
+
+    async function sendChunkWithRetry(jsonObj, url, chunkGroupIndex, maxRetries = 7, initialDelay = 500, maxDelay = 4000) {
+        const jsonStr = JSON.stringify(jsonObj);
+        //console.log(`Sending full JSON chunk (${jsonStr.length} bytes)`);
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Chunk-Start': 'true',
+                        'X-Chunk-End': 'true',
+                        'X-Chunk-Index': '0',
+                        'X-Chunk-Group': chunkGroupIndex.toString(),
+                        'X-Chunk-Total': jsonStr.length.toString()
+                    },
+                    body: jsonStr
+                });
+                if (response.ok) {
+                    //console.log("✅ Chunk sent");
+                    return response.status;
+                } else {
+                    console.warn(`⚠️ Attempt ${attempt} failed with status ${response.status}`);
+                }
+            } catch (err) {
+                console.warn(`⚠️ Fetch error on attempt ${attempt}:`, err);
+            }
+
+            // Si no es el último intento, esperar antes de reintentar
+            if (attempt < maxRetries) {
+                const delay = Math.min(initialDelay * 2 ** (attempt - 1), maxDelay);
+                console.log(`⏳ Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+        console.error("❌ All attempts to send chunk failed");
+        throw new Error("Failed to send chunk after retries");
+    }
+
+    //invocacion de fill: fill(x, y, currentPattern[y][x], color);
+    function fill(x, y, referenceColor,fillcolor) {
+
+        if (currentPattern[y][x] !== referenceColor)
+        {
+            //console.log("some exit?");
+            return;
+        }
+        if(referenceColor != fillcolor)
+        {
+            floodAlgorithm(x, y, referenceColor,fillcolor);
+            // ✅ Solo después de terminar el flood:
+            const wledChunks = generateWledChunks(currentPattern);
+            wledChunks.forEach((chunkJson, index) => {
+                //const jsonStr = JSON.stringify(chunkJson);
+                //sendJsonChunkFull(jsonStr, 'http://192.168.2.1/json/state', index);
+            
+            sendChunkWithRetry(chunkJson, 'http://192.168.2.1/json/state', index);
+ //               .then(status => {
+ //                   console.log("Final status:", status);
+ //               })
+ //               .catch(err => {
+ //                   console.error("Error final:", err);
+//                });                
+            
+            });
+        }
+        else{
+           console.log("Quieren pintar el mismo color que ya hay"); 
+        }
+        drawCanvas();
+        drawMiniMap();    
+    }
+
+    function clearCanvas(){
+        //console.log("Clear canvas"); 
+        for(var i=0; i<logicalSize; i++){
+                for(var j=0; j<logicalSize; j++){
+                    currentPattern[i][j] = '#000000'
+                }
+            }
+        //enviar solicitud al canvas físico
+        drawCanvas();
+        drawMiniMap();
+        //sin rpomise ni un carajo
+        if(live){
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "live", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            xhr.send("cl=1");
+        }        
+    }
+
+    function drawCanvas() {
+        //console.log("fuction drawCanves");
+        for (let y = 0; y < logicalSize; y++) {
+          for (let x = 0; x < logicalSize; x++) {
+            ctx.fillStyle = currentPattern[y][x];
+            ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
+            
+            // Dibujar borde (grilla)
+            ctx.strokeStyle = "#333"; // Color de la grilla (puedes ajustar)
+            ctx.lineWidth = 0.5;      // Grosor de línea
+            ctx.strokeRect(x * zoom, y * zoom, zoom, zoom);            
+            }
+        }
+    }    
+
+    // funcion que descuenta el ancho del scrollbar
+    function resizeCanvas() {
+//        const screenWidth = window.innerWidth;
+        //console.log("Function resize canvas");
+        const container = document.getElementById("canvas-container");
+        const screenWidth = container.clientWidth; // ya descuenta scrollbar
+        zoom = Math.floor(screenWidth / logicalSize);
+        //console.log("calculated zoom:"+zoom);
+        pixelZoom = parseInt(document.getElementById('selectionZoom').value);
+        zoom *= pixelZoom;        
+        //zoom = zoom * pixelZoom; //veo si rompe todo
+        canvas.width = logicalSize * zoom;
+        canvas.height = logicalSize * zoom;
+        //console.log("new calculated zoom:"+zoom);
+       // adjustSubtoolbar();
+        drawCanvas();
+        drawMiniMap();   //ver si corresponde
+    }
+
+    // Cambio de tamaño del lienzo-limpia,reinicializa, NO ajusta zoom, deja como estaba
+    sizeSelect.addEventListener("change", () => {
+        console.log("Event change!");
+        logicalSize = parseInt(sizeSelect.value);
+        initPixelData(logicalSize);
+        resizeCanvas();
+
+        // Ver si poner promise, timeout y todo eso
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "changecanvas", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.send("canvas="+logicalSize);
+        
+    });
+
+
+    // Calculamos el promedio de color para pintar el rectángulo del zoom
+    // con contraste (blanco o negro) dependiento de lo que haya pintado
+    function getAverageColor(x0, y0, w, h) {
+    let r = 0, g = 0, b = 0, count = 0;
+    for (let y = Math.floor(y0); y < y0 + h; y++) {
+        for (let x = Math.floor(x0); x < x0 + w; x++) {
+            if (x >= 0 && x < logicalSize && y >= 0 && y < logicalSize) {
+                let color = currentPattern[y][x]; // e.g. "#rrggbb"
+                let red = parseInt(color.slice(1, 3), 16);
+                let green = parseInt(color.slice(3, 5), 16);
+                let blue = parseInt(color.slice(5, 7), 16);
+                r += red; g += green; b += blue;
+                count++;
+            }
+        }
+    }
+    r = r / count;
+    g = g / count;
+    b = b / count;
+    return { r, g, b };
+}
+
+function getContrastingColor(r, g, b) {
+    // Luminancia percibida (fórmula estándar)
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    return luminance > 128 ? 'black' : 'white';
+}
+
+// Minimapa del dibujo con rectangulo indicando el área si hay zoom, y un rectángulo
+// con contraste respectoal contenido del dibujo. Efecto MUY cheto
+function drawMiniMap() {
+    const miniCtx = document.getElementById('miniCanvas').getContext('2d');
+    const miniSize = document.getElementById('miniCanvas').getAttribute('height');
+    //const miniSize = 128; // tamaño en píxeles del minimapa (por ejemplo 128x128 px)
+    const scale = miniSize / logicalSize;
+
+    // Dibujar el patrón completo en el minimapa
+    for (let y = 0; y < logicalSize; y++) {
+        for (let x = 0; x < logicalSize; x++) {
+            miniCtx.fillStyle = currentPattern[y][x];
+            miniCtx.fillRect(x * scale, y * scale, scale, scale);
+        }
+    }
+
+    // Dibujar el rectángulo de la región visible en el canvas principal
+    const canvas = document.getElementById('canvas');
+    const canvasRect = canvas.getBoundingClientRect();
+    const container = document.getElementById('canvas-container'); // contenedor con scroll
+
+    const scrollLeft = container.scrollLeft;
+    const scrollTop = container.scrollTop;
+    const visibleWidth = container.clientWidth;
+    const visibleHeight = container.clientHeight;
+
+    const visibleLogicalX = scrollLeft / zoom;
+    const visibleLogicalY = scrollTop / zoom;
+    const visibleLogicalW = visibleWidth / zoom;
+    const visibleLogicalH = visibleHeight / zoom;
+
+    // Escalar al minimapa
+const avg = getAverageColor(visibleLogicalX, visibleLogicalY, visibleLogicalW, visibleLogicalH);
+const rectColor = getContrastingColor(avg.r, avg.g, avg.b);
+
+miniCtx.strokeStyle = rectColor;
+    miniCtx.lineWidth = 1;
+    miniCtx.strokeRect(
+        visibleLogicalX * scale,
+        visibleLogicalY * scale,
+        visibleLogicalW * scale,
+        visibleLogicalH * scale
+    );
+}
+
+
+
+    function fitToScreen() {
+        console.log("Function fitToScreen");
+        document.getElementById('selectionZoom').value = 1;
+        setZoom(1);
+    }
+
+    function setZoom(newZoom) {
+        //arreglar
+       // console.log("Function setZoom "+ newZoom);
+        pixelZoom = newZoom;
+        resizeCanvas();
+    }
+
+    function promptAndSave() {
+        var name = window.prompt("Ingrese nombre (hasta 20 caracteres):","mario");
+        if(name.length > 20){
+                window.alert("Los nombres no pueden tener mas que 20 caracteres. Lo siento :(")
+            }
+        else{
+            var xhr = new XMLHttpRequest();
+                xhr.open("POST", "save", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                var message = "pt=\n";  
+                // Solo mando nombre; ya no mando canvas desde la web app
+                message += "&name=" + name;
+                console.log(message);   //Add by guga to see what it sends
+                xhr.send(message);
+            }
+    }
+    function changeCanvasSize(newSize) {
+        console.log("Function ChangeCanvasSize");
+        logicalSize = parseInt(newSize);
+        currentPattern = Array.from({ length: logicalSize }, () => Array(logicalSize).fill('#000000'));
+        drawCanvas();
+        drawMiniMap();
+    }
+
+    function changeMode(){
+        live = !live;
+        changeTool('4');
+        //highlight selection if true
+        live ? document.getElementById('live').style.backgroundColor = '#FFFFFF00' : document.getElementById('live').style.backgroundColor = '#524561';
+        
+        // NO promise, no response check, no nothing
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "mode", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.send("mode="+live);
+    }
+
+    function changeTool(toolId) {
+        tools = [0, 0, 0, 0, 0];
+        tools[parseInt(toolId)] = 1;
+        console.log("change to tool "+toolId);
+        document.querySelectorAll('#toolbar .item').forEach(btn => btn.classList.remove('active'));
+        switch (toolId) {
+            case '0': 
+                document.getElementById('pencil').classList.add('active');
+                tool = 'pen';
+            break;
+            case '1': 
+                document.getElementById('eraser').classList.add('active'); 
+                tool = 'eraser';
+            break;
+            case '2': 
+                document.getElementById('fill').classList.add('active');
+                tool = 'fill';
+            break;
+            case '3': 
+                document.getElementById('colorpickertool').classList.add('active');
+                tool='picker';
+            break;
+            case '4':
+                document.getElementById('live').classList.add('active');
+                tool='live';                
+            break;
+        }
+    }
+
+
+
+    // Funciones de descarga/subida, intercambio de nombres, canvas y cosillas!
+    // Si hacen click en descargar APK!
+    function DownloadAPK()
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "downloadAPK", true );
+        xmlHttp.send();
+    }
+
+    // Cuando la respuesta no entre en una sola respuesta se romperá
+    // todo; asi que hago la entrega de nombres "chunkeable"
+    // (así puede ir en varias partes) 
+    function transferCompleteNames(evt) 
+    {
+        console.log("La transferencia se ha completado.");
+        if (this.status != 200) 
+        { // analiza el estado HTTP de la respuesta
+            // alert(`Error ${this.status}: ${this.statusText}`); // ej. 404: No encontrado
+            console.log("Some error");
+        } 
+        else 
+        {   // muestra el resultado
+            var selection = document.getElementById("selection");
+            // alert(`Hecho, obtenidos ${this.response.length} bytes`); // Respuesta del servidor
+            // names = JSON.parse(this.responseText);
+            names = this.responseText.split("\n");
+            //console.log("Find names:",names);
+            for(var i=0; i<names.length; i++){
+                if(!(names[i].includes("^"))){
+                var option = document.createElement('option');
+                option.value = i;
+                option.innerHTML = names[i];
+                selection.appendChild(option);
+                }
+            }          
+        }
+    }
+    function transferFailedNames(evt) 
+    {
+        console.log("Se ha producido un error al transferir el archivo names.txt");
+    }
+    
+    function getNames()
+    {
+        // var selection = document.getElementById("selection");
+        //make a new GET request to the arduino which reads the names from the SD card
+        var xmlHttp = new XMLHttpRequest();
+    
+        xmlHttp.open("GET", "get", true );
+        xmlHttp.ontimeout = () => 
+        {
+            console.log(`The request timed out.`);
+            xmlHttp.abort();
+            return;
+        };    
+        xmlHttp.addEventListener("load", transferCompleteNames);
+        xmlHttp.addEventListener("error", transferFailedNames);
+        xmlHttp.timeout = 5000; //ajustar timeout
+        xmlHttp.send();
+    }
+    // Función que copia del WLED converter envío de los Jsons enviados chunkeados
+    // (JSON completos en estructura, en chunks http post)  
+    //Para sincronizar
+    function sendJsonChunkFull(jsonObj, url = 'http://192.168.2.1/json/state', chunkGroupIndex = 0) {
+        const jsonStr = jsonObj;
+        console.log(`Sending full JSON chunk (${jsonStr.length} bytes)`);
+        //console.log(jsonStr);
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'X-Chunk-Start': 'true',   // puedes alternar si es necesario
+            'X-Chunk-End': 'true',
+            'X-Chunk-Index': '0',
+            'X-Chunk-Group': chunkGroupIndex.toString(),
+            'X-Chunk-Total': jsonStr.length.toString()
+            },
+            body: jsonStr
+        }).then(response => {
+            return response.status;
+         //   if (!response.ok) {
+            //console.error("❌ Error sending chunk", response.status);
+            
+          //  } else {
+          //  console.log("✅ Chunk sent");
+          //  }
+            
+        }).catch(err => {
+            return err;
+            //console.error("❌ Fetch error:", err);
+
+        });
+    }
+
+    // Recrea desde currentPattern los Json como los enviaría el WLED converter
+    // Para método fill
+    function generateWledChunks(currentPattern, ledsPerChunk = 256) {
+        const size = logicalSize; 
+        const flatColors = [];
+        //var t0 = performance.now();
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+            let color = currentPattern[y][x];
+            // Sanitize color string (remove #, lowercase)
+            color = color.replace("#", "").toLowerCase();
+            flatColors.push(color);
+            }
+        }
+        //var t1 = performance.now();
+        //console.log("Linear pattern Took: "+(t1-t0)+"msecs");              
+        // Split into chunks
+        const totalLEDs = flatColors.length;
+        const chunks = [];
+        //var t0 = performance.now();
+        for (let i = 0; i < totalLEDs; i += ledsPerChunk) {
+            const chunkColors = flatColors.slice(i, i + ledsPerChunk);
+            const chunk = {
+            on: size, // puedes ajustar esto según lo que esperes
+            bri: 128,
+            seg: {
+                id: 0,
+                i: [i, ...chunkColors]
+            }
+            };
+            chunks.push(chunk);
+        }
+        //var t1 = performance.now();
+        //console.log("Generate chunks Took: "+(t1-t0)+"msecs");              
+        return chunks;
+        }
+        
+        // Fetch para solicitude funciona mejor que xmlhttp
+        async function postData(url = '', data = {} , options = {} ) {
+            // Opciones por defecto estan marcadas con un *
+            //console.log(data);
+            const { timeout = 5000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', //con este works la solicitud
+                'Accept': 'application/json',    //y con este works
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: String(data),          // body data type must match "Content-Type" header
+                options,
+                signal: controller.signal
+            })
+            const resText = await response.text();
+            clearTimeout(id);
+             return (resText);
+        }        
+        // Redibujar el canvas cuando tengamos el archivo (que viene chunkeado) y sepamos el tamaño
+        // de canvas con que lo hicieron!
+        // Ver si puede ser medio "automático"
+        function loadPatternChunked()
+        {
+            console.log("Function LoadpatternChunked");
+            var print_on_web = new Boolean(true);
+            var select = document.getElementById("selection");      //veo a cual file le hicieron click (en la web app)
+            var id = select.value;
+            var message = "id="+id;
+            var loadedPattern;
+//            console.log(message);
+            postData( 'http://'+window.location.hostname+'/load', message)
+            .then(data => {
+                // console.log(data);  // JSON data parsed by `data.json()` call
+                //console.log(JSON.stringify(data));
+                loadedPattern = data.split("\n");
+                // loadedPattern = data.slice(-6); //
+                //console.log(loadedPattern);
+                if(loadedPattern.length == 257)
+                {
+                    console.log("Canvas 16x16-infered from file");
+                    logicalSize = 16;
+                }
+                else if (loadedPattern.length == 1025)
+                {
+                    console.log("Canvas 32x32-infered from file");
+                    logicalSize = 32;
+                }
+                else if(loadedPattern.length == 4097)
+                {
+                    console.log("Canvas 64x64-infered from file");
+                    logicalSize = 64;
+                }
+                else 
+                {
+                    print_on_web = false;   //llegaron, chunks; llegó el último, 
+                    console.log("Falló la lectura o se perdieron chunks; o algo paso");
+                    // window.alert("Falló la lectura; por favor, reintente");
+                }
+                if(print_on_web == true)
+                {  
+                    //ver si autoajusta el tamaño y el botón que dice el tamaño
+                    sizeSelect.value = logicalSize; //ver si así solito dispara el callback
+                    changeCanvasSize(logicalSize);
+
+
+                    console.log("Supuestamente todo bien");
+                    //document.getElementById('');
+
+                    //hace con foreach o map más lindo
+                    for(var i=0; i<logicalSize; i++)
+                    {
+                        for(var j=0; j<logicalSize; j++)
+                        {
+                            currentPattern[i][j] = '#'+loadedPattern[i*logicalSize+j].slice(2);
+                        }
+                    }
+
+                    //console.log(currentPattern);
+                    fitToScreen();  //imprimir localmente y ajustar todos los botones, zoom y esas mierdas!
+                                    //el canvas físico estará cargando localmente la misma imagen
+                }
+            });
+        }
+
+
+
+</script>
+
+
+</body>
+</html>

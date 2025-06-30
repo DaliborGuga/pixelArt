@@ -1,0 +1,21 @@
+En el shield que me armé pa probar utilicé estos pines:
+reemplazar en el esp que corresponda. Después hacer más prolijo y dejar atado 
+al hardware implementado. Es el rudo robo del ejemplo desde el que partió todo
+.pio\libdeps\esp32dev\ESP32 HUB75 LED MATRIX PANEL DMA Display\src\platforms\esp32\
+
+#define R1_PIN_DEFAULT  25
+#define G1_PIN_DEFAULT  18
+#define B1_PIN_DEFAULT  26
+#define R2_PIN_DEFAULT  27
+#define G2_PIN_DEFAULT  5
+#define B2_PIN_DEFAULT  14
+
+#define A_PIN_DEFAULT   12
+#define B_PIN_DEFAULT   16
+#define C_PIN_DEFAULT   13
+#define D_PIN_DEFAULT   4
+#define E_PIN_DEFAULT   17// IMPORTANT: Change to a valid pin if using a 64x64px panel.
+            
+#define LAT_PIN_DEFAULT 15
+#define OE_PIN_DEFAULT  32
+#define CLK_PIN_DEFAULT 33
